@@ -14,7 +14,7 @@ from keras.models import Model
 from keras.layers import Input
 from keras.layers import Conv2D
 from keras.layers import Activation
-from keras.layers import MaxPool2D
+from keras.layers import MaxPooling2D
 from keras.layers import BatchNormalization
 from keras.layers import Dense
 from keras.layers import Flatten
@@ -41,7 +41,7 @@ ds_y = np.concatenate((train_y, test_y), axis=0)
 ds_y = ds_y[..., np.newaxis]
 
 ds_x_new = np.zeros((ds_x.shape[0], 48, 64, 1))
-for frame_idx in xrange(ds_x.shape[0]):
+for frame_idx in range(ds_x.shape[0]):
     ds_x_new[frame_idx, :, :, 0] = imresize(
         ds_x[frame_idx, :, :, 0], (48, 64))
 ds_x = ds_x_new
@@ -55,51 +55,50 @@ ds_y -= np.mean(ds_y, keepdims=True)
 ds_y_max = np.max(np.abs(ds_y))
 ds_y /= ds_y_max
 
-start_sample = train_x.shape[0]
-num_samples = 1300
-X_train = ds_x[start_sample:num_samples]
-Y_train = ds_y[start_sample:num_samples]
+num_samples = train_x.shape[0]
+X_train = ds_x[:num_samples]
+Y_train = ds_y[:num_samples]
 X_test = ds_x[num_samples:]
 Y_test = ds_y[num_samples:]
 
 # build model
-input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
+input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3], )
 
-img_input = Input(shape=input_shape)
-
-x = Conv2D(16, (5, 5), padding="same",
-           kernel_initializer="lecun_normal",
-           kernel_regularizer=l2(0.0001),
-           bias_initializer="zeros")(img_input)
-x = BatchNormalization(axis=3)(x)
-x = Activation("relu")(x)
-x = MaxPool2D((2, 2))(x)
+img_input = Input(shape=(X_train.shape[1], X_train.shape[2], X_train.shape[3],))
 
 x = Conv2D(16, (5, 5), padding="same",
            kernel_initializer="lecun_normal",
            kernel_regularizer=l2(0.0001),
-           bias_initializer="zeros")(x)
+           bias_initializer='zeros')(img_input)
 x = BatchNormalization(axis=3)(x)
 x = Activation("relu")(x)
-x = MaxPool2D((2, 2))(x)
+x = MaxPooling2D((2, 2))(x)
+
+x = Conv2D(16, (5, 5), padding="same",
+           kernel_initializer="lecun_normal",
+           kernel_regularizer=l2(0.0001),
+           bias_initializer='zeros')(x)
+x = BatchNormalization(axis=3)(x)
+x = Activation("relu")(x)
+x = MaxPooling2D((2, 2))(x)
 
 x = Flatten()(x)
 
 x = Dense(1024,
           kernel_initializer="lecun_normal",
           kernel_regularizer=l2(0.0001),
-          bias_initializer="zeros")(x)
+          bias_initializer='zeros')(x)
 x = Activation("relu")(x)
 x = Dense(512,
           kernel_initializer="lecun_normal",
           kernel_regularizer=l2(0.0001),
-          bias_initializer="zeros")(x)
+          bias_initializer='zeros')(x)
 x = Activation("relu")(x)
 
 x = Dense(1,
           kernel_initializer="lecun_normal",
           #  kernel_regularizer=l2(0.0001),
-          bias_initializer="zeros")(x)
+          bias_initializer='zeros')(x)
 
 # compile model
 model = Model(img_input, x)
