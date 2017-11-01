@@ -17,6 +17,7 @@ from keras.layers import Activation
 from keras.layers import MaxPool2D
 from keras.layers import BatchNormalization
 from keras.layers import Dense
+from keras.layers import Flatten
 from keras.regularizers import l2
 
 # load dataset
@@ -70,14 +71,15 @@ x = BatchNormalization(axis=3)(x)
 x = Activation("relu")(x)
 x = MaxPool2D((2, 2))(x)
 
-
 x = Conv2D(16, (5, 5), padding="same",
            kernel_initializer="lecun_normal",
            kernel_regularizer=l2(0.0001),
-           bias_initializer="zeros")(img_input)
+           bias_initializer="zeros")(x)
 x = BatchNormalization(axis=3)(x)
 x = Activation("relu")(x)
 x = MaxPool2D((2, 2))(x)
+
+x = Flatten()(x)
 
 x = Dense(1024,
           kernel_initializer="he_normal",
