@@ -83,19 +83,19 @@ x = MaxPool2D((2, 2))(x)
 x = Flatten()(x)
 
 x = Dense(1024,
-          kernel_initializer="he_normal",
+          kernel_initializer="lecun_normal",
           kernel_regularizer=l2(0.0001),
           bias_initializer="zeros")(x)
 x = Activation("relu")(x)
 x = Dense(512,
-          kernel_initializer="he_normal",
+          kernel_initializer="lecun_normal",
           kernel_regularizer=l2(0.0001),
           bias_initializer="zeros")(x)
 x = Activation("relu")(x)
 
 x = Dense(1,
-          kernel_initializer="he_normal",
-          kernel_regularizer=l2(0.0001),
+          kernel_initializer="lecun_normal",
+          #  kernel_regularizer=l2(0.0001),
           bias_initializer="zeros")(x)
 
 # compile model
