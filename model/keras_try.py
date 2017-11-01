@@ -53,10 +53,11 @@ ds_x /= 255.
 ds_x -= np.mean(ds_x, keepdims=True)
 ds_y -= np.mean(ds_y, keepdims=True)
 
-X_train = ds_x[:train_x.shape[0]]
-Y_train = ds_y[:train_x.shape[0]]
-X_test = ds_x[train_x.shape[0]:]
-Y_test = ds_y[train_x.shape[0]:]
+num_samples = 1200
+X_train = ds_x[:num_samples]
+Y_train = ds_y[:num_samples]
+X_test = ds_x[num_samples:]
+Y_test = ds_y[num_samples:]
 
 # build model
 input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
