@@ -53,7 +53,7 @@ ds_x /= 255.
 ds_x -= np.mean(ds_x, keepdims=True)
 ds_y -= np.mean(ds_y, keepdims=True)
 
-num_samples = 1200
+num_samples = 1400
 X_train = ds_x[:num_samples]
 Y_train = ds_y[:num_samples]
 X_test = ds_x[num_samples:]
