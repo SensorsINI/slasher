@@ -52,8 +52,10 @@ print (ds_x.shape)
 ds_x /= 255.
 ds_x -= np.mean(ds_x, keepdims=True)
 ds_y -= np.mean(ds_y, keepdims=True)
+ds_y_max = np.max(np.abs(ds_y))
+ds_y /= ds_y_max
 
-num_samples = 1400
+num_samples = train_x.shape[0]
 X_train = ds_x[:num_samples]
 Y_train = ds_y[:num_samples]
 X_test = ds_x[num_samples:]
