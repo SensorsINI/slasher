@@ -56,7 +56,7 @@ ds_y -= np.mean(ds_y, keepdims=True)
 X_train = ds_x[:train_x.shape[0]]
 Y_train = ds_y[:train_x.shape[0]]
 X_test = ds_x[train_x.shape[0]:]
-Y_test = ds_x[train_x.shape[0]:]
+Y_test = ds_y[train_x.shape[0]:]
 
 # build model
 input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
