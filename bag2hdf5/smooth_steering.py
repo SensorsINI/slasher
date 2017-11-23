@@ -1,95 +1,102 @@
-import os
-import argparse
-import rosbag
-from cv_bridge import CvBridge, CvBridgeError
+import numpy as np
 import h5py
-import progressbar
- 
- 
+import argparse
+import os
+import matplotlib.pyplot as plt
+from statsmodels.nonparametric.smoothers_lowess import lowess
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='rosbag to HDF5 converter for RPG DAVIS driver')
-    parser.add_argument('--dataset', type=str, default="bags/Testing.bag", help='Dataset/ROS Bag name')
-    parser.add_argument('--verbose', type=bool, default=False, help='Verbose output')
-    args = parser.parse_args()
- 
-    dataset = args.dataset
-    verbose = args.verbose
- 
-    dataset_filename, _ = os.path.splitext(dataset)
- 
-    output_x = dataset_filename + '.h5'
- 
-    first_frame_read = False
-    first_command_read = False
+	parser = argparse.ArgumentParser(description='lowpass filter for smoothing steering value')
+	parser.add_argument('--dataset', type=str, default="bags/test.bag", help='Dataset/ROS Bag name')
+	parser.add_argument('--verbose', type=bool, default=False, help='Verbose output')
+	args = parser.parse_args()
 
-    last_frame = None
-    last_angle = None
+	dataset = args.dataset
+	verbose = args.verbose
+	dataset_filename, _ = os.path.splitext(dataset)
 
-    instance = 0
+	print('Reading HDF5 ', dataset)
+	hf = h5py.File(dataset, 'r')
 
-    image_count = 0
-    command_count = 0
- 
-    bridge = CvBridge()
- 
-    x_file = h5py.File(output_x, 'w')
-    x_dset = None
-    y_dset = None
- 
-    print('reading rosbag ', dataset)
-    bag = rosbag.Bag(dataset, 'r')
- 
-    image_instances = bag.get_message_count('/dvs/image_raw')
-    command_instances = bag.get_message_count('/raw_pwm')
-    total_instances = image_instances + command_instances
-    #skipped_instances = 0
- 
-    progress = progressbar.ProgressBar(maxval=total_instances)
- 
-    progress.start()
- 
-    for topic, msg, t in bag.read_messages(topics=['/dvs/image_raw', '/raw_pwm',]):
-        if verbose:
-            if topic in ['/dvs/image_raw',]:
-                print(topic, msg.header.seq, t-msg.header.stamp, msg.height, msg.width, msg.encoding, t)
-            else:
-                # Angles from -8.2 to 8.2 rad since a steering wheel can do more than one rotation
-                print(topic, msg.header.seq, t-msg.header.stamp, msg.steering_wheel_angle, t)
- 
-        if topic in ['/dvs/image_raw',]:
-            if not first_frame_read:
-                first_frame_read = True
-                im_gray = bridge.imgmsg_to_cv2(msg, "mono8") #mono8
+	# Write new HDF5 file
+	output_filename = dataset_filename + '-smooth.h5'
+	print('Writing HDF5', output_filename)
+	mhf = h5py.File(output_filename, 'w')
 
-                g1 = x_file.create_group('video')
-                i_timestamp = g1.create_dataset('timestamp', (image_instances, ), dtype='int64')
-                images = g1.create_dataset('image',(image_instances, im_gray.shape[0], im_gray.shape[1], im_gray.shape[2]), dtype='uint8')
-            try:
-                im_gray = bridge.imgmsg_to_cv2(msg, "mono8") #mono8
-                images[image_count] = im_gray
-                i_timestamp[image_count] = msg.header.stamp.to_nsec()
-                image_count += 1
-            except CvBridgeError as e:
-                 print(e)
+	hf.keys()
 
-        if topic in ['/raw_pwm',]:
-            if not first_command_read:
-                first_command_read = True
-                g2 = x_file.create_group('command')
-                c_timestamp = g2.create_dataset('timestamp', (command_instances, ), dtype='int64')
-                steering = g2.create_dataset('steering', (command_instances, ), dtype='float')
-                throttle = g2.create_dataset('throttle', (command_instances, ), dtype='float')
-                gear_shift = g2.create_dataset('gear_shift', (command_instances,  ), dtype='float')
-            try:
-                c_timestamp[command_count] = t.to_nsec()
-                steering[command_count] = msg.steering
-                throttle[command_count] = msg.throttle
-                gear_shift[command_count] = msg.gear_shift
-                command_count += 1
+	idx=0
 
-                progress.update(image_count+command_count)
-                #print(instance)
-            except:
-                print("ha")
- 
-    progress.finish()
+	video = hf.get('video')
+	command = hf.get('command')
+
+	image = video.get('image')
+	img_stamp = video.get('timestamp')
+
+	steer = command.get('steering')
+	throttle = command.get('throttle')
+	gear = command.get('gear_shift')
+	cmd_stamp = command.get('timestamp')
+
+	#print(img_stamp[:15])
+	#print(cmd_stamp[:15])
+	# print(gear[:])
+
+	interpol_steer = np.zeros(len(image))
+	interpol_throttle = np.zeros(len(image))
+	interpol_gear = np.zeros(len(image))
+
+	for idx in range(len(img_stamp)):
+		#img_stamp[idx]
+
+		mapidx = np.where(img_stamp[idx] > cmd_stamp)
+
+		if len(mapidx[0]) == 0:
+			#print(idx)
+			#interpol_steer.append(steer[0])
+			interpol_steer[idx] = steer[0]
+			interpol_throttle[idx] = throttle[0]
+			interpol_gear[idx] = gear[0]
+			#print("empty")
+		else:
+			#print(idx)
+			#print(steer[mapidx[0][-1]])
+			#print(steer[mapidx[0][-1] + 1])
+			average = (steer[mapidx[0][-1]] + steer[mapidx[0][-1] + 1])/2
+			interpol_steer[idx] = (average)
+			average = (throttle[mapidx[0][-1]] + throttle[mapidx[0][-1] + 1])/2
+			interpol_throttle[idx] = (average)
+			average = (gear[mapidx[0][-1]] + gear[mapidx[0][-1] + 1])/2
+			interpol_gear[idx] = (average)
+			#print(average)
+			#print(mapidx[0][-1])
+
+	g1 = mhf.create_group('video')
+	g1.create_dataset('timestamp',data=img_stamp)
+	g1.create_dataset('image',data=image)
+	g2 = mhf.create_group('command')
+	g2.create_dataset('timestamp',data=img_stamp)
+	g2.create_dataset('steering',data=interpol_steer)
+	g2.create_dataset('throttle',data=interpol_throttle)
+	g2.create_dataset('gear_shift',data=interpol_gear)
+
+	filtered = lowess(interpol_steer, img_stamp, is_sorted=True, frac=0.065, it=0)
+	g2.create_dataset('smooth_steering',data=filtered[:,1])
+	#print(filtered[:,0])
+	#print(filtered[:,1])
+
+	if verbose:
+		group2 = mhf.get('command')
+		print(group2.items())
+		f, (ax1, ax2, ax3, ax4) = plt.subplots(4, sharex=True, sharey=True)
+		ax1.plot(cmd_stamp,steer,linestyle="-")
+		ax1.set_title('Sharing both axes')
+		ax2.plot(img_stamp,interpol_steer, color='b')
+		ax2.plot(filtered[:,0], filtered[:,1], color='r')
+		ax3.plot(cmd_stamp,throttle, color='r')
+		ax4.plot(img_stamp,interpol_throttle, color='r')
+		f.subplots_adjust(hspace=0)
+		plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
+		plt.show()
+
+	hf.close()
