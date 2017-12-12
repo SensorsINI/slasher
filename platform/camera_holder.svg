@@ -26,7 +26,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="151.26511"
+     inkscape:cx="251.92184"
      inkscape:cy="354.44217"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -1145,18 +1145,16 @@
       </g>
     </g>
     <g
-       id="g5831"
-       transform="rotate(90,70.35153,146.33618)"
-       style="stroke:#ff0000;stroke-opacity:1;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none">
+       id="g1029">
       <path
          inkscape:connector-curvature="0"
          id="rect5456"
-         d="m 25.323052,170.10286 c -1.108,0 -1.99988,0.89188 -1.99988,1.99988 v 2.05517 h -5.0002 v 9.99991 h 5.0002 v 9.99991 h -5.0002 v 9.9999 h 5.0002 v 3.94498 c 0,1.108 0.89188,1.99988 1.99988,1.99988 H 131.32279 c 1.10799,0 2.00038,-0.89188 2.00038,-1.99988 v -2.99982 h 4.9997 v -9.9999 h -4.9997 v -9.99991 h 4.9997 v -10.00042 h -4.9997 v -2.99982 c 0,-1.108 -0.89239,-1.99988 -2.00038,-1.99988 z"
+         d="m 46.58485,101.3077 c 0,-1.108 -0.89188,-1.999878 -1.99988,-1.999878 H 42.5298 v -5.0002 h -9.99991 v 5.0002 h -9.99991 v -5.0002 h -9.9999 v 5.0002 H 8.5851 c -1.108,0 -1.99988,0.891878 -1.99988,1.999878 v 105.99974 c 0,1.10799 0.89188,2.00038 1.99988,2.00038 h 2.99982 v 4.9997 h 9.9999 v -4.9997 h 9.99991 v 4.9997 h 10.00042 v -4.9997 h 2.99982 c 1.108,0 1.99988,-0.89239 1.99988,-2.00038 z"
          style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <g
-         transform="translate(4.127707,7.589767)"
+         transform="rotate(90,64.492793,144.60515)"
          id="g5695"
-         style="stroke:#ff0000;stroke-opacity:1;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none">
+         style="stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">
         <circle
            style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="path5683"
@@ -1183,10 +1181,11 @@
            r="2.5000119" />
       </g>
       <ellipse
+         transform="rotate(90)"
          ry="3.1751287"
          rx="3.1751289"
-         cy="190.10268"
-         cx="78.322922"
+         cy="-33.409721"
+         cx="154.30757"
          id="path5705"
          style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
