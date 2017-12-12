@@ -40,7 +40,9 @@ if __name__ == "__main__":
     bag = rosbag.Bag(dataset, 'r')
  
     image_instances = bag.get_message_count('/dvs/image_raw')
+    print (image_instances)
     command_instances = bag.get_message_count('/raw_pwm')
+    print (command_instances)
     total_instances = image_instances + command_instances
     #skipped_instances = 0
  
@@ -60,10 +62,12 @@ if __name__ == "__main__":
             if not first_frame_read:
                 first_frame_read = True
                 im_gray = bridge.imgmsg_to_cv2(msg, "mono8") #mono8
+                print (im_gray.shape)
 
                 g1 = x_file.create_group('video')
                 i_timestamp = g1.create_dataset('timestamp', (image_instances, ), dtype='int64')
-                images = g1.create_dataset('image',(image_instances, im_gray.shape[0], im_gray.shape[1], im_gray.shape[2]), dtype='uint8')
+                #  images = g1.create_dataset('image',(image_instances, im_gray.shape[0], im_gray.shape[1], im_gray.shape[2]), dtype='uint8')
+                images = g1.create_dataset('image',(image_instances, im_gray.shape[0], im_gray.shape[1]), dtype='uint8')
             try:
                 im_gray = bridge.imgmsg_to_cv2(msg, "mono8") #mono8
                 images[image_count] = im_gray
