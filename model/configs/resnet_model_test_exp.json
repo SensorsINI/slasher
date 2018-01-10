@@ -1,0 +1,12 @@
+{
+    "model_name": "resnet_model_test_exp",
+    "data_name": "ccw_foyer_record_12_12_17_test_exported.hdf5",
+    "channel_id": 2,
+    "stages": 3,
+    "blocks": 5,
+    "filter_list": [[16, 16, 16],
+                    [32, 32, 32],
+                    [64, 64, 64]],
+    "nb_epoch": 200,
+    "batch_size": 32
+}
