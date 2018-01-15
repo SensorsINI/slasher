@@ -8,6 +8,7 @@ import os
 
 import h5py
 import numpy as np
+from scipy.misc import imresize
 import matplotlib.pyplot as plt
 
 import spiker
@@ -16,38 +17,69 @@ from spiker.models import utils
 
 logger = log.get_logger("ResNet - Steering - Inference", log.INFO)
 
+
+def get_dataset(dataset, frame_cut, target_size=(64, 32), verbose=True):
+    """Get dataset from HDF5 object."""
+    aps_frames = dataset["aps"][()]/255.
+    dvs_frames = dataset["dvs"][()]/16.
+    steering = dataset["pwm"][:, 0][()]
+    steering = (steering-1500)/500.
+    data_shape = aps_frames.shape[1:]
+    num_data = aps_frames.shape[0]
+    # frame rescaling
+    if target_size is not None:
+        frames = np.zeros((num_data,)+target_size+(2,))
+    else:
+        frames = np.zeros((num_data,)+(data_shape[1], data_shape[2])+(2,))
+    for idx in range(num_data):
+        if target_size is not None:
+            frames[idx, :, :, 0] = imresize(
+                dvs_frames[idx, frame_cut[0][0]:-frame_cut[0][1],
+                           frame_cut[1][0]:-frame_cut[1][1]], target_size)
+            frames[idx, :, :, 1] = imresize(
+                aps_frames[idx, frame_cut[0][0]:-frame_cut[0][1],
+                           frame_cut[1][0]:-frame_cut[1][1]], target_size)
+        else:
+            frames[idx, :, :, 0] = dvs_frames[
+                idx, frame_cut[0][0]:-frame_cut[0][1],
+                frame_cut[1][0]:-frame_cut[1][1]]
+            frames[idx, :, :, 1] = aps_frames[
+                idx, frame_cut[0][0]:-frame_cut[0][1],
+                frame_cut[1][0]:-frame_cut[1][1]]
+        if verbose is True:
+            if (idx+1) % 100 == 0:
+                print ("[MESSAGE] %d images processed." % (idx+1))
+
+    return frames, steering
+
+
 # model path
 model_path = os.path.join(
     spiker.SPIKER_EXPS,
-    "resnet_model_test_exp",
-    "resnet_model_test_exp-70-0.02.hdf5")
+    "resnet_model_small_test_exp",
+    "resnet_model_small_test_exp-26-0.02.hdf5")
+
+frame_cut = [[40, 20], [0, 1]]
 
 # load data
 data_path = os.path.join(spiker.SPIKER_DATA, "rosbag",
                          "ccw_foyer_record_12_12_17_test_exported.hdf5")
 logger.info("Dataset %s" % (data_path))
-dataset = h5py.File(data_path, "r")
-aps_frames = dataset["aps"][()]/255.
-dvs_frames = dataset["dvs"][()]/16.
-steering = dataset["pwm"][:, 0][()]
+test_dataset = h5py.File(data_path, "r")
+
+test_frames, test_steering = get_dataset(
+    test_dataset, frame_cut, verbose=True)
+test_steering = test_dataset["pwm"][:, 0][()]
+test_frames -= np.mean(test_frames, keepdims=True)
+
 # rescale steering
-dataset.close()
+test_dataset.close()
 
-frames = np.stack((dvs_frames, aps_frames), axis=-1)
-logger.info(frames.shape)
-
-frames -= np.mean(frames, keepdims=True)
-num_samples = frames.shape[0]
-num_train = int(num_samples*0.7)
-X_train = frames[:num_train]
-Y_train = steering[:num_train]
-X_test = frames[num_train:]
-Y_test = steering[num_train:]
-
-del frames
+num_samples = test_frames.shape[0]
+X_test = test_frames
+Y_test = test_steering
 
 logger.info("Number of samples %d" % (num_samples))
-logger.info("Number of train samples %d" % (X_train.shape[0]))
 logger.info("Number of test samples %d" % (X_test.shape[0]))
 
 # load model
