@@ -85,6 +85,12 @@ logger.info("Number of test samples %d" % (X_test.shape[0]))
 # load model
 model = utils.keras_load_model(model_path)
 
+model_json = model.to_json()
+with open(model_path[:-5]+"-exported.json", "w") as outfile:
+    outfile.write(model_json)
+    outfile.close()
+model.save_weights(model_path[:-5]+"-exported.hdf5")
+
 Y_predicted_test = utils.keras_predict_batch(model, X_test, verbose=True)
 Y_predicted_test = (Y_predicted_test*500)+1500
 
