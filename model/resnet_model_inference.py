@@ -56,8 +56,8 @@ def get_dataset(dataset, frame_cut, target_size=(64, 32), verbose=True):
 # model path
 model_path = os.path.join(
     spiker.SPIKER_EXPS,
-    "resnet_model_small_test_exp",
-    "resnet_model_small_test_exp-26-0.02.hdf5")
+    "resnet_model_small_aps_test_exp",
+    "resnet_model_small_aps_test_exp-119-0.02.hdf5")
 
 frame_cut = [[40, 20], [0, 1]]
 
@@ -76,7 +76,7 @@ test_frames -= np.mean(test_frames, keepdims=True)
 test_dataset.close()
 
 num_samples = test_frames.shape[0]
-X_test = test_frames
+X_test = test_frames[:, :, :, 1][..., np.newaxis]
 Y_test = test_steering
 
 logger.info("Number of samples %d" % (num_samples))
@@ -89,7 +89,7 @@ model_json = model.to_json()
 with open(model_path[:-5]+"-exported.json", "w") as outfile:
     outfile.write(model_json)
     outfile.close()
-model.save_weights(model_path[:-5]+"-exported.hdf5")
+model.save_weights(model_path[:-5]+"-exported.h5")
 
 Y_predicted_test = utils.keras_predict_batch(model, X_test, verbose=True)
 Y_predicted_test = (Y_predicted_test*500)+1500

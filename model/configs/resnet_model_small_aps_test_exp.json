@@ -1,0 +1,15 @@
+{
+    "model_name": "resnet_model_small_aps_test_exp",
+    "data_name": "ccw_foyer_record_12_12_17_exported.hdf5",
+    "test_data_name": "ccw_foyer_record_12_12_17_test_exported.hdf5",
+    "channel_id": 1,
+    "stages": 3,
+    "blocks": 3,
+    "filter_list": [[8, 8, 8],
+                    [16, 16, 16],
+                    [24, 24, 24]],
+    "nb_epoch": 200,
+    "batch_size": 32,
+    "frame_cut": [[40, 20],
+                  [0, 1]]
+}
