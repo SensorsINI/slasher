@@ -18,7 +18,7 @@ from spiker.models import utils
 logger = log.get_logger("ResNet - Steering - Inference", log.INFO)
 
 
-def get_dataset(dataset, frame_cut, target_size=(64, 32), verbose=True):
+def get_dataset(dataset, frame_cut, target_size=(32, 64), verbose=True):
     """Get dataset from HDF5 object."""
     aps_frames = dataset["aps"][()]/255.
     dvs_frames = dataset["dvs"][()]/16.
@@ -56,24 +56,37 @@ def get_dataset(dataset, frame_cut, target_size=(64, 32), verbose=True):
 # model path
 model_path = os.path.join(
     spiker.SPIKER_EXPS,
-    "resnet_model_small_aps_test_exp",
-    "resnet_model_small_aps_test_exp-119-0.02.hdf5")
+    "resnet_model_small_new_aps_test_exp",
+    "resnet_model_small_new_aps_test_exp-139-0.02.hdf5")
 
 frame_cut = [[40, 20], [0, 1]]
 
 # load data
 data_path = os.path.join(spiker.SPIKER_DATA, "rosbag",
                          "ccw_foyer_record_12_12_17_test_exported.hdf5")
+data_path_1 = os.path.join(spiker.SPIKER_DATA, "rosbag",
+                           "cw_foyer_record_12_12_17_test_exported.hdf5")
 logger.info("Dataset %s" % (data_path))
 test_dataset = h5py.File(data_path, "r")
+test_dataset_1 = h5py.File(data_path_1, "r")
 
 test_frames, test_steering = get_dataset(
     test_dataset, frame_cut, verbose=True)
 test_steering = test_dataset["pwm"][:, 0][()]
 test_frames -= np.mean(test_frames, keepdims=True)
 
+test_frames_1, test_steering_1 = get_dataset(
+    test_dataset_1, frame_cut, verbose=True)
+test_steering_1 = test_dataset_1["pwm"][:, 0][()]
+test_frames_1 -= np.mean(test_frames_1, keepdims=True)
+
 # rescale steering
 test_dataset.close()
+test_dataset_1.close()
+
+test_frames = np.concatenate((test_frames, test_frames_1), axis=0)
+test_steering = np.concatenate(
+    (test_steering, test_steering_1), axis=0)
 
 num_samples = test_frames.shape[0]
 X_test = test_frames[:, :, :, 1][..., np.newaxis]
@@ -96,6 +109,7 @@ Y_predicted_test = (Y_predicted_test*500)+1500
 
 # plot the model
 plt.figure()
-plt.plot(Y_test, "r")
-plt.plot(Y_predicted_test, "g")
+plt.plot(Y_test, "r", label="groundtruth")
+plt.plot(Y_predicted_test, "g", label="predicted")
+plt.legend()
 plt.show()

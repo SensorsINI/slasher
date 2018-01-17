@@ -129,8 +129,8 @@ def resnet_exp(model_name, data_name, data_name_2, test_data_name,
     frames_2 -= np.mean(frames_2, keepdims=True)
 
     # stacking all data
-    frames = np.vstack((frames, frames_2), axis=0)
-    steering = np.vstack((steering, steering_2), axis=0)
+    frames = np.concatenate((frames, frames_2), axis=0)
+    steering = np.concatenate((steering, steering_2), axis=0)
     if test_data_name != "":
         # load first testing data
         test_frames, test_steering = get_dataset(
@@ -141,12 +141,15 @@ def resnet_exp(model_name, data_name, data_name_2, test_data_name,
             test_dataset_2, frame_cut, verbose=True)
         test_frames_2 -= np.mean(test_frames_2, keepdims=True)
         # stacking all data
-        test_frames = np.vstack((test_frames, test_frames_2), axis=0)
-        test_steering = np.vstack((test_steering, test_steering_2), axis=0)
+        test_frames = np.concatenate((test_frames, test_frames_2), axis=0)
+        test_steering = np.concatenate(
+            (test_steering, test_steering_2), axis=0)
 
     # rescale steering
     dataset.close()
+    dataset_2.close()
     test_dataset.close()
+    test_dataset_2.close()
 
     if test_data_name == "":
         num_samples = frames.shape[0]
