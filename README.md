@@ -96,7 +96,9 @@ $ cp ~/catkin_ws/src/rpg_dvs_ros/davis_ros_driver/config/DAVIS240C.yaml ~/.ros/c
 $ mv DAVIS240C.yaml DAVIS240-024600xx.yaml
 ```
 
-[TODO] maybe serialize davis bias here
+[TODO] maybe serialize davis bias here, maybe use `rqt_reconfigure`
+
+Configure autonomous driving parameters by modifying `param_server.yaml`.
 
 1. Launch the main controller
 
