@@ -51,6 +51,14 @@ def bind_hdf5s(config_name):
         hdf5_file = h5py.File(file_path, "r")
 
         # dump data to binded data
+        num_samples = hdf5_file["dvs_bind"].shape[0]
+        resized_shape = frame_ds.shape[0]+num_samples
+
+        frame_ds.resize(resized_shape, axis=0)
+        pwm_ds.resize(resized_shape, axis=0)
+
+        frame_ds[-num_samples:] = hdf5_file["dvs_bind"][()]
+        pwm_ds[-num_samples:] = hdf5_file["pwm"][()]
 
         # close file
         hdf5_file.close()
