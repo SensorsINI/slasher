@@ -1,5 +1,5 @@
 # PATHS ARE USED in each nodes, will be used via launch file under `rosparam load iyaml_file`
-model_path: "monstruck_drive_moddel_exp-163-0.06-exported"
+model_path: "monstruck_drive_moddel_exp-163-0.06-exported.json"
 frame_cut: [[90, 10], [0, 1]]
 img_shape: [180, 240]
 target_size: [30, 90]
