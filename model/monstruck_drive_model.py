@@ -12,7 +12,6 @@ from sacred import Experiment
 
 import h5py
 import numpy as np
-from skimage.transform import resize
 from keras.utils.vis_utils import plot_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
@@ -26,61 +25,27 @@ logger = log.get_logger("ResNet - Steering - Experiment", log.INFO)
 
 
 class MonstruckSequence(Sequence):
-    def __init__(self, dataset, batch_size, frame_cut, target_size,
-                 mode):
+    def __init__(self, dataset, batch_size, mode):
         """Monstruck Sequence."""
         self.dataset = dataset
         self.batch_size = batch_size
-        self.frame_cut = frame_cut
-        self.target_size = target_size
         self.mode = mode
 
     def __len__(self):
-        total_length = 0
-        for leng in self.datasets_len:
-            total_length += np.ceil(leng/float(self.batch_size))
-        return total_length
+        return np.ceil(
+            self.dataset["dvs_bind"].shape[0]/float(self.batch_size))
 
     def __getitem__(self, idx):
         # batch_x: data, batch_y: steering
         batch_x = self.dataset["dvs_bind"][
-            idx*self.batch_size:(idx+1)*self.batch_size][()]
+            idx*self.batch_size:(idx+1)*self.batch_size][()] \
+                if self.mode == 2 else self.dataset["dvs_bind"][
+            idx*self.batch_size:(idx+1)*self.batch_size][
+                ()][..., self.mode][..., np.newaxis]
         batch_y = self.dataset["pwm"][
             idx*self.batch_size:(idx+1)*self.batch_size, 0][()]
 
-        # rescaling for x
-        batch_x[..., 0] /= 16.
-        batch_x[..., 1] /= 255.
-        data_shape = batch_x.shape[:2]
-
-        # rescale for steering
-        batch_y = (batch_y-1500)/500.
-
-        # preprocessing for batch data
-        if self.target_size is not None:
-            frames = np.zeros((self.batch_size,)+self.target_size+(2,)) \
-                if self.mode == 2 else \
-                np.zeros((self.batch_size,)+self.target_size+(1,))
-        else:
-            frames = np.zeros(
-                (self.batch_size,)+(data_shape[1], data_shape[2])+(2,)) \
-                if self.mode == 2 else \
-                np.zeros(
-                    (self.batch_size,)+(data_shape[1], data_shape[2])+(2,))
-
-        # resize data
-        if self.target_size is not None:
-            frames = resize(
-                batch_x[:, self.frame_cut[0][0]:-self.frame_cut[0][1],
-                        self.frame_cut[1][0]:-self.frame_cut[1][1], :],
-                self.target_size,
-                mode="reflect")
-        else:
-            frames = batch_x[:, self.frame_cut[0][0]:-self.frame_cut[0][1],
-                             self.frame_cut[1][0]:-self.frame_cut[1][1], :]
-
-        return np.array(frames, dtype=np.floate32), \
-            np.array(batch_y, dtype=np.float32)
+        return np.array(batch_x), np.array(batch_y)
 
 
 exp = Experiment("ResNet - Steering - Experiment")
@@ -180,13 +145,11 @@ def resnet_exp(model_name, data_name, test_data_name,
     # training
     model.fit_generator(
         MonstruckSequence(
-            dataset, batch_size,
-            frame_cut, target_size, channel_id),
+            dataset, batch_size, channel_id),
         epochs=nb_epoch,
         callbacks=callbacks_list,
         validation_data=MonstruckSequence(
-            test_dataset, batch_size,
-            frame_cut, target_size, channel_id),
+            test_dataset, batch_size, channel_id),
         shuffle=True)
 
     dataset.close()

@@ -32,10 +32,10 @@ plt.plot(pwm_data[:, 0])
 plt.show()
 
 for frame_id in range(dataset["dvs_bind"].shape[0]):
-    cv2.imshow("aps", imresize(dataset["dvs_bind"][
-        frame_id, 90:-10, 0:-1, 1][()], (30, 90)))
-    cv2.imshow("dvs", imresize(dataset["dvs_bind"][
-        frame_id, 90:-10, 0:-1, 0][()]/float(8*2), (30, 90)))
+    cv2.imshow("aps", dataset["dvs_bind"][
+        frame_id, :, :, 1][()])
+    cv2.imshow("dvs", dataset["dvs_bind"][
+        frame_id, :, :, 0][()])
 
     if cv2.waitKey(200) & 0xFF == ord('q'):
         break
