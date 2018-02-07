@@ -69,7 +69,7 @@ $ catkin build
 $ source ~/.bashrc
 ```
 
-Update `udev` rules for DVS cameras and crazyfile
+Update `udev` rules for DVS cameras and crazyflie
 
 ```
 [TODO] write a bash file
@@ -120,7 +120,7 @@ $ roslaunch controller manual.launch
 + Left analog mini-stick: steering (rotate left and right)
 + Right analog mini-stick: throttle (rotate up and down)
 
-## Calibration and setup for DVS camera and crazyfile
+## Calibration and setup for DVS camera and crazyflie
 
 ### DVS camera calibration
 
@@ -144,7 +144,7 @@ The file is located at
 $ ~/catkin_ws/src/monstruck/src/controller/cfg
 ```
 
-### Crazyfile calibration
+### Crazyflie calibration
 
 1. Set six LSP node to pre-defined location, connect the nodes to USB power banks.
 
@@ -164,13 +164,13 @@ anchor[id]_pos: [X_pos, Y_pos, Z_pos]
 3. Find available radio URI configuration
 
 ```
-$ rosrun crazyfile_tools scan
+$ rosrun crazyflie_tools scan
 ```
 
 4. Launch calibration node
 
 ```
-$ roslaunch controller calibration_crazyfile_host.launch
+$ roslaunch controller calibration_crazyflie_host.launch
 ```
 
 ## Contacts
