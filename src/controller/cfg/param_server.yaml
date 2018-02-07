@@ -1,0 +1,7 @@
+# PATHS ARE USED in each nodes, will be used via launch file under `rosparam load iyaml_file`
+model_path: "resnet_model_small_new_aps_swipe_flip_exp-134-0.02-exported.json"
+frame_cut: [[40, 20], [0, 1]]
+img_shape: [180, 240]
+target_size: [32, 64]
+clip_value: 8
+mode: 1

@@ -1,0 +1,41 @@
+<launch>
+
+ <!-- Set Parameter Sever -->
+ <rosparam  file="$(find controller)/cfg/param_server.yaml" command="load"/>
+
+  <!-- camera driver -->
+  <node name="davis_ros_driver" pkg="davis_ros_driver" type="davis_ros_driver" />
+
+  <!-- dvs binder -->
+  <node name="dvs_binder" pkg="dvs_binder" type="dvs_binder">
+    <!-- <param name="bind_method" value="grayscale"/> -->
+    <param name="bind_method" value="binded"/>
+    <remap from="events" to="/dvs/events" />
+    <remap from="image" to="/dvs/image_raw" />
+    <remap from="camera_info" to="/dvs/camera_info" />
+  </node>
+
+
+ <!-- Serial Arduino Node -->
+  <node pkg="rosserial_python" type="serial_node.py" name="serial_node">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="baud" value="57600"/>
+  </node>
+
+ <!-- Joy node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="jetson_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+ 
+ <!-- Pilot Node -->
+  <node pkg="controller" name="autonomous_controller" type="controller.py" output="screen"/>
+
+  <!-- Perception Node -->
+  <param name="scale_linear" value="0.5" type="double"/>
+  <param name="scale_angular" value="1.0" type="double"/>
+  <param name="axis_linear" value="3" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+
+  <node pkg="controller" type="controller_node" name="jetson_teleop" output="screen"/>
+</launch>
