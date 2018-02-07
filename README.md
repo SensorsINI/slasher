@@ -170,7 +170,7 @@ $ rosrun crazyfile_tools scan
 4. Launch calibration node
 
 ```
-$ roslaunch bitcraze_lps_estimator calibration.launch
+$ roslaunch controller calibration_crazyfile_host.launch
 ```
 
 ## Contacts
