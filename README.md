@@ -89,14 +89,7 @@ $ catkin build
 
 0. Configure related parameters for the main controller
 
-Configure bias parameters to DVS camera
-
-```
-$ cp ~/catkin_ws/src/rpg_dvs_ros/davis_ros_driver/config/DAVIS240C.yaml ~/.ros/camera_info
-$ mv DAVIS240C.yaml DAVIS240-024600xx.yaml
-```
-
-[TODO] maybe serialize davis bias here, maybe use `rqt_reconfigure`
+Configure bias parameters to DVS camera, see DVS calibration for more details.
 
 Configure autonomous driving parameters by modifying `param_server.yaml`.
 
@@ -109,7 +102,7 @@ $ roslaunch controller manual.launch
 Launch crazyflie node on the host machine
 
 ```
-$ roslaunch controller crazyflie.launch
+$ roslaunch controller crazyflie.launch uri:=radio://0/yourchannel/yourfreq
 ```
 
 2. Joystick control command
@@ -152,7 +145,7 @@ $ ~/catkin_ws/src/monstruck/src/controller/cfg
 
 ### Crazyflie calibration
 
-1. Set six LSP node to pre-defined location, connect the nodes to USB power banks.
+1. Set six LSP nodes to pre-defined locations, connect the nodes to USB power banks.
 
 2. Modify `anchor_pos.yaml`
 
@@ -161,7 +154,7 @@ $ cd ~/catkin_ws/src/lps-ros/data
 $ mv anchor_pos.yaml.sample anchor_pos.yaml  # only do once
 ```
 
-Set each anchor position based on
+Set each anchor position in following template
 
 ```
 anchor[id]_pos: [X_pos, Y_pos, Z_pos]
@@ -176,7 +169,7 @@ $ rosrun crazyflie_tools scan
 4. Launch calibration node
 
 ```
-$ roslaunch controller calibration_crazyflie_host.launch
+$ roslaunch controller calibration_crazyflie_host.launch uri:=radio://0/yourchannel/yourfreq
 ```
 
 ## Contacts
