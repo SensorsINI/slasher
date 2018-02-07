@@ -1,5 +1,7 @@
 """Experimental ResNet Keras Model for Steering.
 
+- With only steering prediction
+
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
@@ -11,7 +13,7 @@ from sacred import Experiment
 
 import h5py
 import numpy as np
-from scipy.misc import imresize
+from skimage.transform import resize
 from keras.utils.vis_utils import plot_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
@@ -38,12 +40,14 @@ def get_dataset(dataset, frame_cut, target_size=(32, 64), verbose=True):
         frames = np.zeros((num_data,)+(data_shape[1], data_shape[2])+(2,))
     for idx in range(num_data):
         if target_size is not None:
-            frames[idx, :, :, 0] = imresize(
+            frames[idx, :, :, 0] = resize(
                 dvs_frames[idx, frame_cut[0][0]:-frame_cut[0][1],
-                           frame_cut[1][0]:-frame_cut[1][1]], target_size)
-            frames[idx, :, :, 1] = imresize(
+                           frame_cut[1][0]:-frame_cut[1][1]], target_size,
+                mode="reflect")
+            frames[idx, :, :, 1] = resize(
                 aps_frames[idx, frame_cut[0][0]:-frame_cut[0][1],
-                           frame_cut[1][0]:-frame_cut[1][1]], target_size)
+                           frame_cut[1][0]:-frame_cut[1][1]], target_size,
+                mode="reflect")
         else:
             frames[idx, :, :, 0] = dvs_frames[
                 idx, frame_cut[0][0]:-frame_cut[0][1],
@@ -74,13 +78,15 @@ exp.add_config({
     "batch_size": 0,  # batch size
     "frame_cut": [],  # frame cut from full resolution
                       # [[top, bottom], [left, right]]
+    "target_size": [],  # [height, width]
     })
 
 
 @exp.automain
 def resnet_exp(model_name, data_name, data_name_2, test_data_name,
                test_data_name_2, channel_id, stages,
-               blocks, filter_list, nb_epoch, batch_size, frame_cut):
+               blocks, filter_list, nb_epoch, batch_size, frame_cut,
+               target_size):
     """Perform ResNet experiment."""
     model_path = os.path.join(spiker.SPIKER_EXPS, model_name)
     if not os.path.isdir(model_path):
@@ -117,13 +123,15 @@ def resnet_exp(model_name, data_name, data_name_2, test_data_name,
     test_dataset = h5py.File(test_data_path, "r")
     test_dataset_2 = h5py.File(test_data_path_2, "r")
     # load first training data
-    frames, steering = get_dataset(dataset, frame_cut, verbose=True)
+    frames, steering = get_dataset(dataset, frame_cut, target_size,
+                                   verbose=True)
     frames = frames[100:-100]
     steering = steering[100:-100]
     frames -= np.mean(frames, keepdims=True)
 
     # load second training data
-    frames_2, steering_2 = get_dataset(dataset_2, frame_cut, verbose=True)
+    frames_2, steering_2 = get_dataset(dataset_2, frame_cut, target_size,
+                                       verbose=True)
     frames_2 = frames_2[100:-100]
     steering_2 = steering_2[100:-100]
     frames_2 -= np.mean(frames_2, keepdims=True)
