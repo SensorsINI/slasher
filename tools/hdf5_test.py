@@ -20,7 +20,7 @@ logger = log.get_logger("hdf5-test", log.INFO)
 
 hdf5_path = os.path.join(
     spiker.SPIKER_DATA, "rosbag",
-    "walk_speed-monstruck_rec_2018-02-02-18-25-26-foyer-cw_exported.hdf5")
+    "binded_hdf5.hdf5")
 
 dataset = h5py.File(hdf5_path, "r")
 
@@ -37,7 +37,7 @@ for frame_id in range(dataset["dvs_bind"].shape[0]):
     cv2.imshow("dvs", dataset["dvs_bind"][
         frame_id, :, :, 0][()])
 
-    if cv2.waitKey(200) & 0xFF == ord('q'):
+    if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
 dataset.close()

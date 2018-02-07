@@ -15,7 +15,7 @@ import spiker
 from spiker import log
 from spiker.data import rosbag as rb
 
-logger = log.get_logger("rosbag-test", log.INFO)
+logger = log.get_logger("rosbag-exporter", log.INFO)
 
 
 def rosbag2hdf5(data_name):

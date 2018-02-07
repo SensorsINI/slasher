@@ -5,16 +5,16 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function
 
-from builtins import range
 import json
 import argparse
 import os
 
-import numpy as np
 import h5py
 
 import spiker
 from spiker import log
+
+logger = log.get_logger("hdf5-binder", log.INFO)
 
 
 def bind_hdf5s(config_name):
@@ -34,14 +34,14 @@ def bind_hdf5s(config_name):
     # define datasets
     frame_ds = binded_data.create_dataset(
         name="dvs_bind",
-        shape=(0,)+config["img_shape"]+(2,),
-        maxshape=(None,)+config["img_shape"]+(2,),
-        dtype="uint16")
+        shape=(0,)+tuple(config["img_shape"])+(2,),
+        maxshape=(None,)+tuple(config["img_shape"])+(2,),
+        dtype="float32")
     pwm_ds = binded_data.create_dataset(
         name="pwm",
         shape=(0, 3),
         maxshape=(None, 3),
-        dtype="uint16")
+        dtype="float32")
 
     # iterate
     for file_name in config["file_list"]:
@@ -62,9 +62,9 @@ def bind_hdf5s(config_name):
 
         # close file
         hdf5_file.close()
+        logger.info("Binded %s" % (file_name))
 
     binded_data.close()
-
 
 
 if __name__ == '__main__':
@@ -74,4 +74,4 @@ if __name__ == '__main__':
                         default="",
                         help="name of your dataset in spikeres folder")
     args = parser.parse_args()
-    prepare_ds(**vars(args))
+    bind_hdf5s(**vars(args))
