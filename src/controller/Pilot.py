@@ -65,16 +65,17 @@ class Pilot:
     def callback(self, camera_info):
         global steering, throttle
         if self.lock.acquire(True):
-            # get aps image
-            self.image = cv_bridge.imgmsg_to_cv2(
-                camera_info, "bgr8")[..., :2] if self.mode == 2 else \
-                    cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
-
             if self.model is None:
                 self.model = self.get_model()
                 # give up this message while loading for first time
                 steering = 0.
                 return
+
+            # get aps image
+            self.image = cv_bridge.imgmsg_to_cv2(
+                camera_info, "bgr8")[..., :2] if self.mode == 2 else \
+                cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
+
             # do custom image processing here
             input_img = self.img_proc(self.image,
                                       config=self.img_config)
