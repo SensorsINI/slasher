@@ -100,10 +100,16 @@ $ mv DAVIS240C.yaml DAVIS240-024600xx.yaml
 
 Configure autonomous driving parameters by modifying `param_server.yaml`.
 
-1. Launch the main controller
+1. Launch the main controller on the car
 
 ```
 $ roslaunch controller manual.launch
+```
+
+Launch crazyflie node on the host machine
+
+```
+$ roslaunch controller crazyflie.launch
 ```
 
 2. Joystick control command
