@@ -1,9 +1,7 @@
 {
-    "model_name": "resnet_model_small_new_test_exp",
+    "model_name": "monstruck_drive_moddel_exp",
     "data_name": "ccw_foyer_record_12_12_17_exported.hdf5",
-    "data_name_2": "cw_foyer_record_12_12_17_exported.hdf5",
     "test_data_name": "ccw_foyer_record_12_12_17_test_exported.hdf5",
-    "test_data_name_2": "cw_foyer_record_12_12_17_test_exported.hdf5",
     "channel_id": 2,
     "stages": 3,
     "blocks": 3,

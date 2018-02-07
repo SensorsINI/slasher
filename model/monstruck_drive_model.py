@@ -6,7 +6,6 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
-from builtins import range
 import os
 
 from sacred import Experiment
@@ -17,6 +16,7 @@ from skimage.transform import resize
 from keras.utils.vis_utils import plot_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from keras.utils import Sequence
 
 import spiker
 from spiker import log
@@ -25,41 +25,62 @@ from spiker.models import resnet
 logger = log.get_logger("ResNet - Steering - Experiment", log.INFO)
 
 
-def get_dataset(dataset, frame_cut, target_size=(32, 64), verbose=True):
-    """Get dataset from HDF5 object."""
-    aps_frames = dataset["aps"][()]/255.
-    dvs_frames = dataset["dvs"][()]/16.
-    steering = dataset["pwm"][:, 0][()]
-    steering = (steering-1500)/500.
-    data_shape = aps_frames.shape[1:]
-    num_data = aps_frames.shape[0]
-    # frame rescaling
-    if target_size is not None:
-        frames = np.zeros((num_data,)+target_size+(2,))
-    else:
-        frames = np.zeros((num_data,)+(data_shape[1], data_shape[2])+(2,))
-    for idx in range(num_data):
-        if target_size is not None:
-            frames[idx, :, :, 0] = resize(
-                dvs_frames[idx, frame_cut[0][0]:-frame_cut[0][1],
-                           frame_cut[1][0]:-frame_cut[1][1]], target_size,
-                mode="reflect")
-            frames[idx, :, :, 1] = resize(
-                aps_frames[idx, frame_cut[0][0]:-frame_cut[0][1],
-                           frame_cut[1][0]:-frame_cut[1][1]], target_size,
+class MonstruckSequence(Sequence):
+    def __init__(self, dataset, batch_size, frame_cut, target_size,
+                 mode):
+        """Monstruck Sequence."""
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self.frame_cut = frame_cut
+        self.target_size = target_size
+        self.mode = mode
+
+    def __len__(self):
+        total_length = 0
+        for leng in self.datasets_len:
+            total_length += np.ceil(leng/float(self.batch_size))
+        return total_length
+
+    def __getitem__(self, idx):
+        # batch_x: data, batch_y: steering
+        batch_x = self.dataset["dvs_bind"][
+            idx*self.batch_size:(idx+1)*self.batch_size][()]
+        batch_y = self.dataset["pwm"][
+            idx*self.batch_size:(idx+1)*self.batch_size, 0][()]
+
+        # rescaling for x
+        batch_x[..., 0] /= 16.
+        batch_x[..., 1] /= 255.
+        data_shape = batch_x.shape[:2]
+
+        # rescale for steering
+        batch_y = (batch_y-1500)/500.
+
+        # preprocessing for batch data
+        if self.target_size is not None:
+            frames = np.zeros((self.batch_size,)+self.target_size+(2,)) \
+                if self.mode == 2 else \
+                np.zeros((self.batch_size,)+self.target_size+(1,))
+        else:
+            frames = np.zeros(
+                (self.batch_size,)+(data_shape[1], data_shape[2])+(2,)) \
+                if self.mode == 2 else \
+                np.zeros(
+                    (self.batch_size,)+(data_shape[1], data_shape[2])+(2,))
+
+        # resize data
+        if self.target_size is not None:
+            frames = resize(
+                batch_x[:, self.frame_cut[0][0]:-self.frame_cut[0][1],
+                        self.frame_cut[1][0]:-self.frame_cut[1][1], :],
+                self.target_size,
                 mode="reflect")
         else:
-            frames[idx, :, :, 0] = dvs_frames[
-                idx, frame_cut[0][0]:-frame_cut[0][1],
-                frame_cut[1][0]:-frame_cut[1][1]]
-            frames[idx, :, :, 1] = aps_frames[
-                idx, frame_cut[0][0]:-frame_cut[0][1],
-                frame_cut[1][0]:-frame_cut[1][1]]
-        if verbose is True:
-            if (idx+1) % 100 == 0:
-                print ("[MESSAGE] %d images processed." % (idx+1))
+            frames = batch_x[:, self.frame_cut[0][0]:-self.frame_cut[0][1],
+                             self.frame_cut[1][0]:-self.frame_cut[1][1], :]
 
-    return frames, steering
+        return np.array(frames, dtype=np.floate32), \
+            np.array(batch_y, dtype=np.float32)
 
 
 exp = Experiment("ResNet - Steering - Experiment")
@@ -67,9 +88,7 @@ exp = Experiment("ResNet - Steering - Experiment")
 exp.add_config({
     "model_name": "",  # the model name
     "data_name": "",  # the data name
-    "data_name_2": "",  # the data name
     "test_data_name": "",  # test data name
-    "test_data_name_2": "",  # test data name
     "channel_id": 0,  # which channel to chose, 0: dvs, 1: aps, 2: both
     "stages": 0,  # number of stages
     "blocks": 0,  # number of blocks of each stage
@@ -83,8 +102,8 @@ exp.add_config({
 
 
 @exp.automain
-def resnet_exp(model_name, data_name, data_name_2, test_data_name,
-               test_data_name_2, channel_id, stages,
+def resnet_exp(model_name, data_name, test_data_name,
+               channel_id, stages,
                blocks, filter_list, nb_epoch, batch_size, frame_cut,
                target_size):
     """Perform ResNet experiment."""
@@ -107,82 +126,27 @@ def resnet_exp(model_name, data_name, data_name_2, test_data_name,
     # load data
     data_path = os.path.join(spiker.SPIKER_DATA, "rosbag",
                              data_name)
-    data_path_2 = os.path.join(spiker.SPIKER_DATA, "rosbag",
-                               data_name_2)
     if test_data_name != "":
         test_data_path = os.path.join(spiker.SPIKER_DATA, "rosbag",
                                       test_data_name)
-        test_data_path_2 = os.path.join(spiker.SPIKER_DATA, "rosbag",
-                                        test_data_name_2)
 
     if not os.path.isfile(data_path):
         raise ValueError("This dataset does not exist at %s" % (data_path))
     logger.info("Dataset %s" % (data_path))
+    # open training and testing datasets
     dataset = h5py.File(data_path, "r")
-    dataset_2 = h5py.File(data_path_2, "r")
     test_dataset = h5py.File(test_data_path, "r")
-    test_dataset_2 = h5py.File(test_data_path_2, "r")
-    # load first training data
-    frames, steering = get_dataset(dataset, frame_cut, target_size,
-                                   verbose=True)
-    frames = frames[100:-100]
-    steering = steering[100:-100]
-    frames -= np.mean(frames, keepdims=True)
 
-    # load second training data
-    frames_2, steering_2 = get_dataset(dataset_2, frame_cut, target_size,
-                                       verbose=True)
-    frames_2 = frames_2[100:-100]
-    steering_2 = steering_2[100:-100]
-    frames_2 -= np.mean(frames_2, keepdims=True)
+    num_train_samples = dataset["dvs_bind"].shape[0]
+    num_test_samples = test_dataset["dvs_bind"].shape[0]
 
-    # stacking all data
-    frames = np.concatenate((frames, frames_2), axis=0)
-    steering = np.concatenate((steering, steering_2), axis=0)
-    if test_data_name != "":
-        # load first testing data
-        test_frames, test_steering = get_dataset(
-            test_dataset, frame_cut, verbose=True)
-        test_frames -= np.mean(test_frames, keepdims=True)
-        # load second testing data
-        test_frames_2, test_steering_2 = get_dataset(
-            test_dataset_2, frame_cut, verbose=True)
-        test_frames_2 -= np.mean(test_frames_2, keepdims=True)
-        # stacking all data
-        test_frames = np.concatenate((test_frames, test_frames_2), axis=0)
-        test_steering = np.concatenate(
-            (test_steering, test_steering_2), axis=0)
-
-    # rescale steering
-    dataset.close()
-    dataset_2.close()
-    test_dataset.close()
-    test_dataset_2.close()
-
-    if test_data_name == "":
-        num_samples = frames.shape[0]
-        num_train = int(num_samples*0.7)
-        X_train = frames[:num_train]
-        Y_train = steering[:num_train]
-        X_test = frames[num_train:]
-        Y_test = steering[num_train:]
-    else:
-        num_samples = frames.shape[0]+test_frames.shape[0]
-        X_train = frames
-        Y_train = steering
-        X_test = test_frames
-        Y_test = test_steering
-
-    if channel_id != 2:
-        X_train = X_train[:, :, :, channel_id][..., np.newaxis]
-        X_test = X_test[:, :, :, channel_id][..., np.newaxis]
-
-    logger.info("Number of samples %d" % (num_samples))
-    logger.info("Number of train samples %d" % (X_train.shape[0]))
-    logger.info("Number of test samples %d" % (X_test.shape[0]))
+    logger.info("Number of samples %d" % (num_train_samples+num_test_samples))
+    logger.info("Number of train samples %d" % (num_train_samples))
+    logger.info("Number of test samples %d" % (num_test_samples))
 
     # setup image shape
-    input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
+    input_shape = (target_size[0], target_size[1], 2) if channel_id == 2 \
+        else (target_size[0], target_size[1], 1)
 
     # Build model
     model = resnet.resnet_builder(
@@ -214,9 +178,16 @@ def resnet_exp(model_name, data_name, data_name_2, test_data_name,
     callbacks_list = [checkpoint, csv_logger]
 
     # training
-    model.fit(
-        x=X_train, y=Y_train,
-        batch_size=batch_size,
+    model.fit_generator(
+        MonstruckSequence(
+            dataset, batch_size,
+            frame_cut, target_size, channel_id),
         epochs=nb_epoch,
-        validation_data=(X_test, Y_test),
-        callbacks=callbacks_list)
+        callbacks=callbacks_list,
+        validation_data=MonstruckSequence(
+            test_dataset, batch_size,
+            frame_cut, target_size, channel_id),
+        shuffle=True)
+
+    dataset.close()
+    test_dataset.close()
