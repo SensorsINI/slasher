@@ -34,7 +34,8 @@ class Pilot:
 
         # get model
         self.get_model = get_model_call_back
-        model = self.get_model()._make_predict_function()
+        model = self.get_model()
+        model._make_predict_function()
         graph = tf.get_default_graph()
 
         self.predict = model_callback
@@ -92,7 +93,8 @@ class Pilot:
                                   config=self.img_config)
 
         with graph.as_default():
-            steering, _ = self.predict(model, input_img)
+            steering = model.predict(input_img)[0][0]
+            #  steering, _ = self.predict(model, input_img)
         #  self.completed_cycle = True
         #  self.lock.release()
 
