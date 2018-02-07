@@ -48,10 +48,11 @@ def load_model(model_path):
         json_model = json_file.read()
         model = model_from_json(json_model, custom_objects={"ktf": ktf})
     print('Pilot model is loaded...')
-    model.compile("adam", "mse")
-
     pre_trained_weights = model_path.replace('json', 'h5')
     model.load_weights(pre_trained_weights)
+
+    #  model._make_predict_function()
+    #  model.compile("adam", "mse")
 
     return model
 

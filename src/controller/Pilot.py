@@ -7,11 +7,11 @@ Use X button on joystick to stop
 """
 from __future__ import print_function
 
-import time
 import threading
 
 import rospy
 from cv_bridge import CvBridge
+import tensorflow as tf
 
 from sensor_msgs.msg import Joy, Image
 from rally_msgs.msg import Pwm
@@ -27,10 +27,16 @@ class Pilot:
     # Activate autonomous mode in Jetson Car
     def __init__(self, get_model_call_back, model_callback,
                  img_proc_callback, img_config=None):
+        global graph
         self.image = None
         self.model = None
         self.event_img = None
+
+        # get model
         self.get_model = get_model_call_back
+        self.model = self.get_model()._make_predict_function()
+        graph = tf.get_default_graph()
+
         self.predict = model_callback
         self.img_proc = img_proc_callback
         self.completed_cycle = False
@@ -64,30 +70,31 @@ class Pilot:
         throttle = joy.axes[3]  # Let user can manual throttle
 
     def callback(self, camera_info):
-        global steering, throttle
-        if self.lock.acquire(True):
-            if self.model is None:
-                start_time = time.time()
-                self.model = self.get_model()
-                end_time = time.time()
-                print ("loading time:", end_time-start_time)
-                # give up this message while loading for first time
-                steering = 0.
-                self.lock.release()
-                return
+        global steering, throttle, graph
+        #  if self.lock.acquire(True):
+        #  if self.model is None:
+        #      start_time = time.time()
+        #      self.model = self.get_model()
+        #      end_time = time.time()
+        #      print ("loading time:", end_time-start_time)
+        #      # give up this message while loading for first time
+        #      steering = 0.
+        #      self.lock.release()
+        #      return
 
-            # get aps image
-            self.image = cv_bridge.imgmsg_to_cv2(
-                camera_info, "bgr8")[..., :2] if self.mode == 2 else \
-                cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
+        # get aps image
+        self.image = cv_bridge.imgmsg_to_cv2(
+            camera_info, "bgr8")[..., :2] if self.mode == 2 else \
+            cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
 
-            # do custom image processing here
-            input_img = self.img_proc(self.image,
-                                      config=self.img_config)
+        # do custom image processing here
+        input_img = self.img_proc(self.image,
+                                  config=self.img_config)
 
+        with graph.as_default():
             steering, _ = self.predict(self.model, input_img)
-            self.completed_cycle = True
-            self.lock.release()
+        #  self.completed_cycle = True
+        #  self.lock.release()
 
     def send_control(self, event, verbose=False):
         global steering, throttle
