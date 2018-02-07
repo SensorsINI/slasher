@@ -27,14 +27,14 @@ class Pilot:
     # Activate autonomous mode in Jetson Car
     def __init__(self, get_model_call_back, model_callback,
                  img_proc_callback, img_config=None):
-        global graph
+        global graph, model
         self.image = None
         self.model = None
         self.event_img = None
 
         # get model
         self.get_model = get_model_call_back
-        self.model = self.get_model()._make_predict_function()
+        model = self.get_model()._make_predict_function()
         graph = tf.get_default_graph()
 
         self.predict = model_callback
@@ -70,7 +70,7 @@ class Pilot:
         throttle = joy.axes[3]  # Let user can manual throttle
 
     def callback(self, camera_info):
-        global steering, throttle, graph
+        global steering, throttle, graph, model
         #  if self.lock.acquire(True):
         #  if self.model is None:
         #      start_time = time.time()
@@ -92,7 +92,7 @@ class Pilot:
                                   config=self.img_config)
 
         with graph.as_default():
-            steering, _ = self.predict(self.model, input_img)
+            steering, _ = self.predict(model, input_img)
         #  self.completed_cycle = True
         #  self.lock.release()
 
