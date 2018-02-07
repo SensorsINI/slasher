@@ -27,16 +27,18 @@ class Pilot:
     # Activate autonomous mode in Jetson Car
     def __init__(self, get_model_call_back, model_callback,
                  img_proc_callback, img_config=None):
-        global graph, model
+        global graph
         self.image = None
         self.model = None
         self.event_img = None
 
         # get model
         self.get_model = get_model_call_back
-        model = self.get_model()
-        model._make_predict_function()
+        self.model = self.get_model()
+        self.model._make_predict_function()
+        print ("i'm alright")
         graph = tf.get_default_graph()
+        print ("i'm alright as well")
 
         self.predict = model_callback
         self.img_proc = img_proc_callback
@@ -65,38 +67,39 @@ class Pilot:
 
         # Lock which waiting for Keras model to make prediction
         rospy.Timer(rospy.Duration(0.005), self.send_control)
+        print ("i'm alright too")
 
     def joy_callback(self, joy):
         global throttle
         throttle = joy.axes[3]  # Let user can manual throttle
 
     def callback(self, camera_info):
-        global steering, throttle, graph, model
-        #  if self.lock.acquire(True):
-        #  if self.model is None:
-        #      start_time = time.time()
-        #      self.model = self.get_model()
-        #      end_time = time.time()
-        #      print ("loading time:", end_time-start_time)
-        #      # give up this message while loading for first time
-        #      steering = 0.
-        #      self.lock.release()
-        #      return
+        global steering, throttle, graph
+        if self.lock.acquire(True):
+            #  if self.model is None:
+            #      start_time = time.time()
+            #      self.model = self.get_model()
+            #      end_time = time.time()
+            #      print ("loading time:", end_time-start_time)
+            #      # give up this message while loading for first time
+            #      steering = 0.
+            #      self.lock.release()
+            #      return
 
-        # get aps image
-        self.image = cv_bridge.imgmsg_to_cv2(
-            camera_info, "bgr8")[..., :2] if self.mode == 2 else \
-            cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
+            # get aps image
+            self.image = cv_bridge.imgmsg_to_cv2(
+                camera_info, "bgr8")[..., :2] if self.mode == 2 else \
+                cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
 
-        # do custom image processing here
-        input_img = self.img_proc(self.image,
-                                  config=self.img_config)
+            # do custom image processing here
+            input_img = self.img_proc(self.image,
+                                      config=self.img_config)
 
-        with graph.as_default():
-            steering = model.predict(input_img)[0][0]
-            #  steering, _ = self.predict(model, input_img)
-        #  self.completed_cycle = True
-        #  self.lock.release()
+            with graph.as_default():
+                steering = self.model.predict(input_img)[0][0]
+                #  steering, _ = self.predict(model, input_img)
+            self.completed_cycle = True
+            self.lock.release()
 
     def send_control(self, event, verbose=False):
         global steering, throttle
