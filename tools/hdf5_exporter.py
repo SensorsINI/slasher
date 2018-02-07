@@ -121,8 +121,11 @@ def prepare_ds(data_name, data_config):
             frame = frame[:, frame_cut[0][0]:-frame_cut[0][1],
                           frame_cut[1][0]:-frame_cut[1][1], :]
 
+        current_pwm = pwm_data[cmd_idx].copy()
+        current_pwm[0] = (current_pwm[0]-1500)/500.
+
         # assign value
-        cmd_data_ds[cmd_idx] = pwm_data[cmd_idx]
+        cmd_data_ds[cmd_idx] = current_pwm
         bind_data_ds[cmd_idx] = frame
 
         logger.info("Processed %d/%d command" % (cmd_idx+1, num_cmds))
