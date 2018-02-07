@@ -124,7 +124,25 @@ $ roslaunch controller manual.launch
 
 ### DVS camera calibration
 
-[TODO] a launch file that does bias tuning and can load bias
+To start DVS camera calibration on the car
+
+```
+roslaunch controller calibration_car.launch
+```
+
+To start DVS camera calibration on the host machine
+
+```
+roslaunch controller calibration_host.launch
+```
+
+You can calibrate camera configs from the `rqt_reconfigure` GUI tool.
+Then you will need to save the change to `monstruck_camera_config.yaml`
+The file is located at
+
+```
+$ ~/catkin_ws/src/monstruck/src/controller/cfg
+```
 
 ### Crazyfile calibration
 
