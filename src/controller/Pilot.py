@@ -73,6 +73,7 @@ class Pilot:
                 print ("loading time:", end_time-start_time)
                 # give up this message while loading for first time
                 steering = 0.
+                self.lock.release()
                 return
 
             # get aps image
