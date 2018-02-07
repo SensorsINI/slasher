@@ -8,7 +8,7 @@
 
   <!-- dvs binder -->
   <node name="dvs_binder" pkg="dvs_binder" type="dvs_binder">
-    <!-- <param name="bind_method" value="grayscale"/> -->
+    <!-- <param name="bind_method" value="events_only"/> -->
     <param name="bind_method" value="binded"/>
     <remap from="events" to="/dvs/events" />
     <remap from="image" to="/dvs/image_raw" />

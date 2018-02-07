@@ -26,14 +26,11 @@ def drive(model, image):
     if image is None:
         return
 
-    # TODO: preprocess image to send to file or preprocess in higher level
-
     # predict output
     prediction = model.predict(image)
     steering_angle = prediction[0][0]
     throttle = 0.1
 
-    # TODO: POST STEER ANGLE PROCESSING - PID Controller
     return steering_angle, throttle
 
 
@@ -103,9 +100,9 @@ def img_preproc(in_image, config=None):
         in_image[..., 1] /= 255.
 
     # resize to target size
-    in_image = resize(in_image, target_size)
+    in_image = resize(in_image, target_size, mode="reflect")
 
-    return in_image[np.newaxis, ...]
+    return in_image[np.newaxis, ...].astype(np.float32)
 
 
 if __name__ == "__main__":

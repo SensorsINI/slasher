@@ -9,14 +9,11 @@ from __future__ import print_function
 
 import threading
 
-import numpy as np
 import rospy
-import message_filters
 from cv_bridge import CvBridge
 
 from sensor_msgs.msg import Joy, Image
 from rally_msgs.msg import Pwm
-from dvs_msgs.msg import EventArray
 
 steering = 0.0
 throttle = 0.0
@@ -69,9 +66,9 @@ class Pilot:
         global steering, throttle
         if self.lock.acquire(True):
             # get aps image
-            self.image = cv_bridge.imgmsg_to_cv2(camera_info)[..., :2] \
-                if self.mode == 2 else cv_bridge.imgmsg_to_cv2(camera_info)
-            self.image = np.asarray(self.image, dtype=np.float32)
+            self.image = cv_bridge.imgmsg_to_cv2(
+                camera_info, "bgr8")[..., :2] if self.mode == 2 else \
+                    cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
 
             if self.model is None:
                 self.model = self.get_model()
