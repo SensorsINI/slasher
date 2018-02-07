@@ -36,9 +36,7 @@ class Pilot:
         self.get_model = get_model_call_back
         self.model = self.get_model()
         self.model._make_predict_function()
-        print ("i'm alright")
         graph = tf.get_default_graph()
-        print ("i'm alright as well")
 
         self.predict = model_callback
         self.img_proc = img_proc_callback
@@ -66,8 +64,8 @@ class Pilot:
                 '/dvs/image_raw', Image, self.callback, queue_size=1)
 
         # Lock which waiting for Keras model to make prediction
+        # why?
         rospy.Timer(rospy.Duration(0.005), self.send_control)
-        print ("i'm alright too")
 
     def joy_callback(self, joy):
         global throttle
@@ -96,8 +94,7 @@ class Pilot:
                                       config=self.img_config)
 
             with graph.as_default():
-                steering = self.model.predict(input_img)[0][0]
-                #  steering, _ = self.predict(model, input_img)
+                steering, _ = self.predict(self.model, input_img)
             self.completed_cycle = True
             self.lock.release()
 
