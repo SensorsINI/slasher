@@ -14,7 +14,8 @@ import rosbag
 import spiker
 
 #  data_name = "compare_2018-02-07-22-39-11.bag"
-data_name = "compare_2018-02-07-22-15-17.bag"
+#  data_name = "compare_2018-02-07-22-15-17.bag"
+data_name = "compare_new_2018-02-07-23-00-10.bag"
 
 bag_path = os.path.join(
     spiker.SPIKER_DATA, "rosbag", data_name)
