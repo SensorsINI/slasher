@@ -107,7 +107,7 @@ dvs_pol_ds = dvs_group.create_dataset(
     dtype="bool")
 dvs_packet_time = dvs_group.create_dataset(
     name="packet_ts",
-    shape=(num_event_pkgs,),
+    shape=(num_event_pkgs, 2),
     dtype="int64")
 
 # topic list
@@ -152,6 +152,12 @@ for topic, msg, t in bag.read_messages(topics=topics_list):
         num_events = len(events)
 
         # export events
+        # record packet time
+        dvs_packet_time[event_packet_idx, 0] = \
+            msg.header.stamp.to_nsec()//1000
+        # record packet starting index
+        dvs_packet_time[event_packet_idx, 1] = dvs_data_ds.shape[0]
+        # record events
         events_loc_arr = np.array([[x.x, x.y] for x in events],
                                   dtype=np.uint16)
         events_ts_arr = np.array([x.ts.to_nsec()//1000 for x in events],
@@ -169,7 +175,6 @@ for topic, msg, t in bag.read_messages(topics=topics_list):
         dvs_time_ds[-num_events:] = events_ts_arr
         dvs_pol_ds[-num_events:] = events_pol_arr
 
-        dvs_packet_time[event_packet_idx] = msg.header.stamp.to_nsec()//1000
         logger.info("Processed %d/%d event packet, Seq: %d"
                     % (event_packet_idx, num_event_pkgs,
                        msg.header.seq))
