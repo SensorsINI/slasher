@@ -172,6 +172,85 @@ $ rosrun crazyflie_tools scan
 $ roslaunch controller calibration_crazyflie_host.launch uri:=radio://0/yourchannel/yourfreq
 ```
 
+## Prepare training for monstruck data
+
+We provided a set of tools in [tools](./tools) and [model](./model) folders so that you can use to manage rosbag recordings, prepare training data, and build training models.
+
+### Requirements
+
+To use these tools, there are several requirements
+
++ TensorFlow
++ Keras
++ scikit-image
++ numpy
++ scipy
++ spiker (a private repository, ask for access)
++ rospy
++ rosbag
++ sacred
+
+### Convert ROS bag to HDF5 format
+
+[This script](./tools/rosbag_exporter.py) converts a ROS bag recording to HDF5 format.
+The output HDF5 file is structured as a valid HDF5 recording file and can be accessed easily through `h5py`. The usage is
+
+```
+$ python rosbag_exporter -n your_rosbag_recording.bag
+```
+
+Note that your recording is in your `spikeres/data/rosbag` directory.
+Please read the code for more details.
+
+### Export HDF5 recordings to ready-to-train HDF5 datasets
+
+The raw HDF5 recording provides all data, however, to train a Neural Network,
+you won't need everything. Therefore, you can prepare the training and testing dataset through [hdf5_exporter.py](./tools/hdf5_exporter.py). Usage:
+
+```
+$ python hdf5_exporter.py -n your_hdf5_recording.hdf5 -c /path/to/preprocessing_config.json
+```
+
+The current script receives a preprocessing config JSON file that is defined by the training experiment (see below, we provided a example of the current JSON file as well) in order to match the exact training condition.
+The raw HDF5 recording is in `spikeres/data/rosbag` and the preprocessing config file can be anywhere in the system.
+
+### Joining multiple training dataset together
+
+[hdf_binder.py](./tools/hdf_binder.py) is a tool that binds multiple HDF5 datasets together into a single HDF5 document. Usage:
+
+```
+$ python hdf_binder.py -n file_list.json
+```
+
+The `file_list.json` has three fields as the example showed below:
+
+```json
+{
+    "file_list": ["hdf5_dataset_1.hdf5",
+                  "hdf5_dataset_2.hdf5"],
+    "bind_name": "binded_hdf5.hdf5",
+    "img_shape": [30, 90]
+}
+```
+
+### Training with ResNet
+
+[The model training script](./model/monstruck_drive_model.py) is to train a
+ResNet model with the training and testing datasets.
+
+We use `sacred` to configure each experiments. The usage of this script is:
+
+```
+$ python monstruck_drive_model.py with configs/monstruck_drive_model_exp.json
+```
+
+`sacred` can serialize your experiment configurations so that you can repeat different experiments with a single script. A example of this configuration file is at [here](./model/configs/monstruck_drive_model_exp.json)
+
+### Evaluating and exporting the model file for monstruck controller
+
+[The evaluation script](./model/resnet_model_inference.py) loads a trained model
+and then evaluates on a test dataset. It also re-saves the trained model to model definition JSON file and weights file in HDF5. These two files are used by monstruck to perform inference. Please check out the script and modify to your needs.
+
 ## Contacts
 
 Hong Ming Chen, Yuhuang Hu
