@@ -4,6 +4,7 @@ build/
 .src/cmake-build-debug/
 src/cmake-build-debug/
 *.pyc
+*.swp
 
 *.lprof
 
