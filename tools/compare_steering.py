@@ -16,13 +16,7 @@ import spiker
 #  data_name = "compare_2018-02-07-22-39-11.bag"
 #  data_name = "compare_2018-02-07-22-15-17.bag"
 #  data_name = "compare_new_2018-02-07-23-00-10.bag"
-<<<<<<< HEAD
-data_name = "compare_2018-02-08-15-04-51.bag"
-=======
-#  data_name = "compare_new_2018-02-07-23-17-31.bag"
-#  data_name = "compare_too_2018-02-07-23-59-10.bag"
-data_name = "compare_2018-02-08-15-42-08.bag"
->>>>>>> b99266945085d07c530848d767138a4f8010d088
+data_name = "compare_2018-02-08-21-40-30.bag"
 
 bag_path = os.path.join(
     spiker.SPIKER_DATA, "rosbag", data_name)
@@ -59,10 +53,6 @@ pwm_time_list = np.array(pwm_time_list)-time_diff
 
 plt.figure()
 plt.plot(pwm_time_list/1e6, pwm_value_list, "r",
-<<<<<<< HEAD
-         drive_time_list/1e6-3.5,
-=======
          drive_time_list/1e6,
->>>>>>> b99266945085d07c530848d767138a4f8010d088
          np.array(drive_value_list)*500+1500, "g")
 plt.show()
