@@ -1,0 +1,16 @@
+{
+    "model_name": "small_monstruck_drive_model_exp",
+    "data_name": "walk_speed-monstruck_rec_2018-02-02-18-25-26-foyer-cw_exported.hdf5",
+    "test_data_name": "test-walk_speed-monstruck_rec_2018-02-02-18-56-11-foyer-cw_exported.hdf5",
+    "channel_id": 2,
+    "stages": 3,
+    "blocks": 3,
+    "filter_list": [[8, 8, 8],
+                    [8, 8, 8],
+                    [8 ,8, 8]],
+    "nb_epoch": 200,
+    "batch_size": 32,
+    "frame_cut": [[90, 10],
+                  [0, 1]],
+    "target_size": [30, 90]
+}
