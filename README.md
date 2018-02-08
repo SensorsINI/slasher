@@ -3,15 +3,21 @@ A aggressive self-driving stadium truck.
 
 ## Install ROS
 
-1. Install ROS for Desktop
+1. Install ROS for host machine
 
-[TODO] setup script in bash
+The installation script is at [here](./tools/host_setup.sh)
+
+```
+sudo ./host_setup.sh
+```
 
 2. Install ROS for ODROID UX4/Jetson TX2
 
-[TODO] setup script in bash
+The installation script is at [here](./tools/car_setup.sh)
 
-[TODO] make sure ros's setup script to bashrc
+```
+sudo ./car_setup.sh
+```
 
 ## Install DVS and related drivers
 
@@ -49,9 +55,9 @@ $ cd
 $ mkdir -p catkin_ws/src
 $ cd catkin_ws
 $ catkin config --init --mkdirs --extend /opt/ros/kinetic --merge-devel --cmake-args -DCMAKE_BUILD_TYPE=Release
+$ echo "source $HOME/catkin_ws/devel/setup.sh" >> ~/.bashrc  # please modify accordingly if you use other shells
+$ source ~/.bashrc
 ```
-
-[TODO] add catkin setup to bashrc
 
 3. Build RPG DVS drivers and `monstruck`
 
@@ -72,7 +78,7 @@ $ source ~/.bashrc
 Update `udev` rules for DVS cameras and crazyflie
 
 ```
-[TODO] write a bash file
+sudo ./dvs_cf_udev_install.sh
 ```
 
 __NOTE__: you will have to `source ~/.bashrc` after every build.
