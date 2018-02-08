@@ -51,9 +51,6 @@ def load_model(model_path):
     pre_trained_weights = model_path.replace('json', 'h5')
     model.load_weights(pre_trained_weights)
 
-    #  model._make_predict_function()
-    #  model.compile("adam", "mse")
-
     return model
 
 

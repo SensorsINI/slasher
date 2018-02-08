@@ -58,10 +58,12 @@ class Pilot:
         # subscriber for image and event
         if self.mode in [0, 2]:
             self.camera = rospy.Subscriber(
-                '/dvs_bind', Image, self.callback, queue_size=1)
+                '/dvs_bind', Image, self.callback, queue_size=1,
+                buff_size=262144)
         else:
             self.camera = rospy.Subscriber(
-                '/dvs/image_raw', Image, self.callback, queue_size=1)
+                '/dvs/image_raw', Image, self.callback, queue_size=1,
+                buff_size=262144)
 
         # Lock which waiting for Keras model to make prediction
         # why?
@@ -74,16 +76,6 @@ class Pilot:
     def callback(self, camera_info):
         global steering, throttle, graph
         if self.lock.acquire(True):
-            #  if self.model is None:
-            #      start_time = time.time()
-            #      self.model = self.get_model()
-            #      end_time = time.time()
-            #      print ("loading time:", end_time-start_time)
-            #      # give up this message while loading for first time
-            #      steering = 0.
-            #      self.lock.release()
-            #      return
-
             # get aps image
             self.image = cv_bridge.imgmsg_to_cv2(
                 camera_info, "bgr8")[..., :2] if self.mode == 2 else \
