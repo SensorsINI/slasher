@@ -78,11 +78,11 @@ JoyStick::JoyStick():
 void JoyStick::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
 {
     // Determine if car is in manual or autonomous mode
-    if (joy->axes[7] == ON){
+    if (joy->buttons[7] == ON){
         if(running_autonomous==OFF)
             running_autonomous=ON;
     }
-    if (joy->axes[5] ==ON){
+    if (joy->buttons[6] ==ON){
         if(running_autonomous==ON)
             running_autonomous =OFF;
     }
@@ -94,7 +94,7 @@ void JoyStick::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
 
 }
 void JoyStick::_autonomous_mode(const sensor_msgs::Joy::ConstPtr &joy){
-    // Not implemented yet
+    // don't implement
 }
 
 void JoyStick::_manual_mode(const sensor_msgs::Joy::ConstPtr& joy){

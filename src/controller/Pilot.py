@@ -49,6 +49,9 @@ class Pilot:
         self.clip_value = img_config["clip_value"]
         self.mode = img_config["mode"]
 
+        # get scaling parameter
+        self.throttle_scale = rospy.get_param("scale_linear", 0.5)
+
         # Load Keras Model - Publish topic - CarController
         rospy.init_node("pilot_steering_model", anonymous=True)
         # load keras model from start
@@ -71,7 +74,8 @@ class Pilot:
 
     def joy_callback(self, joy):
         global throttle
-        throttle = joy.axes[3]  # Let user can manual throttle
+        # Let user can manual throttle
+        throttle = self.throttle_scale*joy.axes[3]
 
     def callback(self, camera_info):
         global steering, throttle, graph
