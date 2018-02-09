@@ -1,6 +1,6 @@
 <launch>
   <arg name="record_cameras" default="true" />
 
-  <node pkg="rosbag" type="record" name="rosbag_dvs_recording" args="-o $(env HOME)/monstruck_rec/monstruck_rec /dvs/events /davis_ros_driver/parameter_descriptions /davis_ros_driver/parameter_updates /dvs/exposure /dvs/image_raw /dvs/imu /raw_pwm /dvs_bind /crazyflie/crazyflie_position /crazyflie/pose /crazyflie/imu" if="$(arg record_cameras)" />
+  <node pkg="rosbag" type="record" name="rosbag_dvs_recording" args="-o $(env HOME)/slasher_rec/slasher_rec /dvs/events /davis_ros_driver/parameter_descriptions /davis_ros_driver/parameter_updates /dvs/exposure /dvs/image_raw /dvs/imu /raw_pwm /dvs_bind /crazyflie/crazyflie_position /crazyflie/pose /crazyflie/imu" if="$(arg record_cameras)" />
 
 </launch>
