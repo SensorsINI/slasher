@@ -1,6 +1,9 @@
 """Experimental ResNet Keras Model for Steering.
 
 - With only steering prediction
+- Integrate throttle as input
+
+NOTE: MAKE SURE YOU HAVE THE RIGHT INPUT!!!!!
 
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
@@ -12,11 +15,15 @@ from sacred import Experiment
 
 import h5py
 import numpy as np
+from keras.layers import Input, Dense
+from keras.layers import concatenate
 from keras.utils.vis_utils import plot_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 from keras.callbacks import EarlyStopping
 from keras.utils import Sequence
+from keras.regularizers import l2
+from keras.models import Model
 
 import spiker
 from spiker import log
@@ -45,10 +52,12 @@ class MonstruckSequence(Sequence):
                 if self.mode == 2 else self.dataset["dvs_bind"][
             idx*self.batch_size:(idx+1)*self.batch_size][
                 ()][..., self.mode][..., np.newaxis]
+        batch_x_throttle = self.dataset["pwm"][
+            idx*self.batch_size:(idx+1)*self.batch_size, 1][()]
         batch_y = self.dataset["pwm"][
             idx*self.batch_size:(idx+1)*self.batch_size, 0][()]
 
-        return np.array(batch_x), np.array(batch_y)
+        return [np.array(batch_x), batch_x_throttle], np.array(batch_y)
 
 
 exp = Experiment("ResNet - Steering - Experiment")
@@ -114,12 +123,29 @@ def resnet_exp(model_name, data_name, test_data_name,
         else (target_size[0], target_size[1], 1)
 
     # Build model
-    model = resnet.resnet_builder(
+    img_input, x = resnet.resnet_builder(
         model_name=model_name, input_shape=input_shape,
         batch_size=batch_size,
         filter_list=filter_list, kernel_size=(3, 3),
         output_dim=1, stages=stages, blocks=blocks,
-        bottleneck=False, network_type="regress")
+        bottleneck=False, network_type="regress",
+        conv_only=True)
+
+    # a separate channel for throttle input
+    throttle_input = Input(shape=(1,))
+    throttle_output = Dense(
+        filter_list[-1][-1], activation="relu")(throttle_input)
+    # connect them together
+    x = concatenate([x, throttle_output])
+
+    # map to output layer
+    x = Dense(1,
+              kernel_initializer="he_normal",
+              kernel_regularizer=l2(0.0001),
+              bias_initializer="zeros",
+              name="output")(x)
+
+    model = Model([img_input, throttle_input], x, name=model_name)
 
     model.summary()
     plot_model(model, to_file=model_pic, show_shapes=True,
