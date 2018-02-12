@@ -15,11 +15,14 @@ import numpy as np
 from keras.utils.vis_utils import plot_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from keras.callbacks import EarlyStopping
 from keras.utils import Sequence
 
 import spiker
 from spiker import log
 from spiker.models import resnet
+
+import hdf5_exporter
 
 logger = log.get_logger("ResNet - Steering - Experiment", log.INFO)
 
@@ -63,6 +66,7 @@ exp.add_config({
     "frame_cut": [],  # frame cut from full resolution
                       # [[top, bottom], [left, right]]
     "target_size": [],  # [height, width]
+    "early_stop": 0,  # early stopping parameter, 0 means no early stopping
     })
 
 
@@ -70,7 +74,7 @@ exp.add_config({
 def resnet_exp(model_name, data_name, test_data_name,
                channel_id, stages,
                blocks, filter_list, nb_epoch, batch_size, frame_cut,
-               target_size):
+               target_size, early_stop):
     """Perform ResNet experiment."""
     model_path = os.path.join(spiker.SPIKER_EXPS, model_name)
     if not os.path.isdir(model_path):
@@ -88,16 +92,12 @@ def resnet_exp(model_name, data_name, test_data_name,
     logger.info("Number of stages: %d" % (stages))
     logger.info("Number of blocks: %d" % (blocks))
 
-    # load data
-    data_path = os.path.join(spiker.SPIKER_DATA, "rosbag",
-                             data_name)
-    if test_data_name != "":
-        test_data_path = os.path.join(spiker.SPIKER_DATA, "rosbag",
-                                      test_data_name)
+    # prepare training dataset
+    data_path = hdf5_exporter.prepare_ds(
+        data_name, model_path, target_size, frame_cut)
+    test_data_path = hdf5_exporter.prepare_ds(
+        test_data_name, model_path, target_size, frame_cut)
 
-    if not os.path.isfile(data_path):
-        raise ValueError("This dataset does not exist at %s" % (data_path))
-    logger.info("Dataset %s" % (data_path))
     # open training and testing datasets
     dataset = h5py.File(data_path, "r")
     test_dataset = h5py.File(test_data_path, "r")
@@ -141,6 +141,12 @@ def resnet_exp(model_name, data_name, test_data_name,
     csv_logger = CSVLogger(csv_his_log, append=True)
 
     callbacks_list = [checkpoint, csv_logger]
+
+    if early_stop != 0:
+        callbacks_list.append(
+            EarlyStopping(
+                monitor="val_mean_squared_error",
+                patience=early_stop))
 
     # training
     model.fit_generator(
