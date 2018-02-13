@@ -59,14 +59,17 @@ class Pilot:
         self.control_signal = rospy.Publisher('/drive_pwm', Pwm, queue_size=1)
 
         # subscriber for image and event
-        if self.mode in [0, 2]:
-            self.camera = rospy.Subscriber(
-                '/dvs_bind', Image, self.callback, queue_size=1,
-                buff_size=262144)
-        else:
-            self.camera = rospy.Subscriber(
-                '/dvs/image_raw', Image, self.callback, queue_size=1,
-                buff_size=262144)
+        self.camera = rospy.Subscriber(
+            '/dvs_bind', Image, self.callback, queue_size=1,
+            buff_size=262144)
+        #  if self.mode in [0, 2]:
+        #      self.camera = rospy.Subscriber(
+        #          '/dvs_bind', Image, self.callback, queue_size=1,
+        #          buff_size=262144)
+        #  else:
+        #      self.camera = rospy.Subscriber(
+        #          '/dvs/image_raw', Image, self.callback, queue_size=1,
+        #          buff_size=262144)
 
         # Lock which waiting for Keras model to make prediction
         # why?
@@ -83,7 +86,7 @@ class Pilot:
             # get aps image
             self.image = cv_bridge.imgmsg_to_cv2(
                 camera_info, "bgr8")[..., :2] if self.mode == 2 else \
-                cv_bridge.imgmsg_to_cv2(camera_info, "mono8")
+                cv_bridge.imgmsg_to_cv2(camera_info, "bgr8")[..., self.mode]
 
             # do custom image processing here
             input_img = self.img_proc(self.image,
