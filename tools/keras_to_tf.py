@@ -14,16 +14,28 @@ from tensorflow.python.saved_model import builder as saved_model_builder
 from tensorflow.python.saved_model import tag_constants, \
     signature_constants
 import keras.backend as K
+from keras.backend import tf as ktf
 from keras.models import load_model
+from keras.models import model_from_json
 
 
-def keras2tf(in_model, out_model):
+def keras2tf(in_model, in_model_mode, out_model):
     """Convert Keras model to TensorFlow model."""
     # Load Keras Model
     sess = tf.Session()
     K.set_session(sess)
     K.set_learning_phase(0)
-    keras_model = load_model(in_model)
+
+    if in_model_mode == 0:
+        keras_model = load_model(in_model)
+    else:
+        with open(in_model, 'r') as json_file:
+            json_model = json_file.read()
+            keras_model = model_from_json(
+                json_model, custom_objects={"ktf": ktf})
+        print('Pilot model is loaded...')
+        pre_trained_weights = in_model.replace('json', 'h5')
+        keras_model.load_weights(pre_trained_weights)
 
     prediction_signature = \
         tf.saved_model.signature_def_utils.predict_signature_def(
@@ -57,7 +69,10 @@ if __name__ == '__main__':
     # An argument parser for the program
     parser = argparse.ArgumentParser(description="Keras2TF")
     parser.add_argument("--in-model", type=str,
-                        default="./MovementData/Walking_02.txt",
+                        default="",
+                        help="Keras model path")
+    parser.add_argument("--in-model-mode", type=int,
+                        default="",
                         help="Keras model path")
     parser.add_argument("--out-model", type=str,
                         default="./saved-model",
