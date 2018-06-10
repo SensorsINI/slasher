@@ -14,7 +14,7 @@
    viewBox="0 0 204.26791 213.80424"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 (unknown)"
+   inkscape:version="0.92.3 (unknown)"
    sodipodi:docname="camera_holder.svg">
   <defs
      id="defs2" />
@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="251.92184"
-     inkscape:cy="354.44217"
+     inkscape:cx="270.88183"
+     inkscape:cy="435.25437"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -179,17 +179,17 @@
            transform="translate(35.529762,-5.2916667)"
            style="stroke:#ff0000;stroke-opacity:1;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none">
           <circle
-             r="2.5002081"
              cx="21.01018"
              cy="72.071663"
              id="path4941"
-             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             r="2.3499999" />
           <circle
              style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
              id="circle4943"
              cy="22.071663"
              cx="21.01018"
-             r="2.5002081" />
+             r="2.3499999" />
         </g>
         <g
            transform="translate(75.529762,-5.2916667)"
@@ -200,13 +200,13 @@
              id="circle4949"
              cy="72.071663"
              cx="21.01018"
-             r="2.5002081" />
+             r="2.3499999" />
           <circle
-             r="2.5002081"
              cx="21.01018"
              cy="22.071663"
              id="circle4951"
-             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             r="2.3499999" />
         </g>
       </g>
     </g>
@@ -278,30 +278,30 @@
              id="circle5004"
              cy="72.071663"
              cx="21.01018"
-             r="2.5002081" />
+             r="2.3499999" />
           <circle
-             r="2.5002081"
              cx="21.01018"
              cy="22.071663"
              id="circle5006"
-             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             r="2.3499999" />
         </g>
         <g
            id="g5014"
            transform="translate(75.529762,-5.2916667)"
            style="stroke:#ff0000;stroke-opacity:1;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none">
           <circle
-             r="2.5002081"
              cx="21.01018"
              cy="72.071663"
              id="circle5010"
-             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+             style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             r="2.3499999" />
           <circle
              style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
              id="circle5012"
              cy="22.071663"
              cx="21.01018"
-             r="2.5002081" />
+             r="2.3499999" />
         </g>
       </g>
     </g>
@@ -1160,25 +1160,25 @@
            id="path5683"
            cx="29.195215"
            cy="197.51291"
-           r="2.5000119" />
+           r="2.3499999" />
         <circle
-           r="2.5000119"
            cy="197.51291"
            cx="119.19521"
            id="circle5685"
-           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           r="2.3499999" />
         <circle
-           r="2.5000119"
            cy="167.51291"
            cx="29.195215"
            id="circle5687"
-           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           r="2.3499999" />
         <circle
            style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="circle5689"
            cx="119.19521"
            cy="167.51291"
-           r="2.5000119" />
+           r="2.3499999" />
       </g>
       <ellipse
          transform="rotate(90)"
@@ -1205,29 +1205,29 @@
          id="g5717"
          style="stroke:#ff0000;stroke-opacity:1;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none">
         <circle
-           r="2.5000119"
            cy="197.51291"
            cx="29.195215"
            id="circle5709"
-           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           r="2.3499999" />
         <circle
            style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="circle5711"
            cx="119.19521"
            cy="197.51291"
-           r="2.5000119" />
+           r="2.3499999" />
         <circle
            style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="circle5713"
            cx="29.195215"
            cy="167.51291"
-           r="2.5000119" />
+           r="2.3499999" />
         <circle
-           r="2.5000119"
            cy="167.51291"
            cx="119.19521"
            id="circle5715"
-           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+           style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           r="2.3499999" />
       </g>
     </g>
     <g
