@@ -1,6 +1,6 @@
 """Experimental ResNet Keras Model for Steering.
 
-Jogging dataset, with balancing
+Jogging dataset
 
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
@@ -12,7 +12,6 @@ from sacred import Experiment
 
 import h5py
 import numpy as np
-import random
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 
@@ -21,35 +20,6 @@ from spiker import log
 from spiker.models import resnet
 
 logger = log.get_logger("ResNet - Steering - Experiment", log.INFO)
-
-
-def data_balance_gen(X_train, Y_train, batch_size=128):
-    while True:
-        images = np.zeros((batch_size, 30, 90, 2), dtype=np.float32)
-        steerings = np.zeros((batch_size,), dtype=np.float32)
-        throttles = np.zeros((batch_size,), dtype=np.float32)
-        for i in range(batch_size):
-            straight_count = 0
-            for i in range(batch_size):
-                # Select random index to use for data sample
-                sample_index = random.randrange(X_train.shape[0])
-
-                image = X_train[sample_index]
-                angle = Y_train[0][sample_index]
-                throttle = Y_train[1][sample_index]
-                if abs(angle) < .1:
-                    straight_count += 1
-                if straight_count > (batch_size * .2):
-                    while abs(Y_train[0][sample_index]) < .1:
-                        sample_index = random.randrange(X_train.shape[0])
-                        image = X_train[sample_index]
-                        angle = Y_train[0][sample_index]
-                        throttle = Y_train[1][sample_index]
-                images[i] = image
-                steerings[i] = angle
-                throttles[i] = throttle
-
-        yield images, [steerings, throttles]
 
 
 def get_dataset(dataset, verbose=True):
@@ -81,8 +51,6 @@ def get_dataset(dataset, verbose=True):
     # filter frames
     frames = frames[th_up_index]
     frames = frames[th_down_index]
-
-    # balancing
 
     return frames, steering, throttle
 
@@ -185,10 +153,9 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
     callbacks_list = [checkpoint, csv_logger]
 
     # training
-    train_gen = data_balance_gen(X_train, Y_train, batch_size=batch_size)
-    model.fit_generator(
-        train_gen,
-        steps_per_epoch=X_train.shape[0]//batch_size+1,
+    model.fit(
+        x=X_train, y=Y_train,
+        batch_size=batch_size,
         epochs=nb_epoch,
         validation_data=(X_test, Y_test),
         callbacks=callbacks_list)
