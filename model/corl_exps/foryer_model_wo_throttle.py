@@ -38,20 +38,18 @@ exp.add_config({
     "model_name": "",  # the model name
     "data_name": "",  # the data name
     "test_data_name": "",  # test data name
-    "channel_id": 0,  # which channel to chose, 0: dvs, 1: aps, 2: both
     "stages": 0,  # number of stages
     "blocks": 0,  # number of blocks of each stage
     "filter_list": [],  # number of filters per stage
     "nb_epoch": 0,  # number of training epochs
     "batch_size": 0,  # batch size
-    "frame_cut": [],  # frame cut from full resolution
-                      # [[top, bottom], [left, right]]
+    "target_size": [],  # target size
     })
 
 
 @exp.automain
-def resnet_exp(model_name, data_name, test_data_name, channel_id, stages,
-               blocks, filter_list, nb_epoch, batch_size, frame_cut):
+def resnet_exp(model_name, data_name, test_data_name, stages,
+               blocks, filter_list, nb_epoch, batch_size, target_size):
     """Perform ResNet experiment."""
     model_path = os.path.join(spiker.SPIKER_EXPS, model_name)
     if not os.path.isdir(model_path):

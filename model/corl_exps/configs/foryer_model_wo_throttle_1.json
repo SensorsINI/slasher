@@ -8,6 +8,6 @@
                     [16, 16, 16],
                     [24, 24, 24]],
     "nb_epoch": 200,
-    "batch_size": 32,
+    "batch_size": 128,
     "target_size": [30, 90]
 }
