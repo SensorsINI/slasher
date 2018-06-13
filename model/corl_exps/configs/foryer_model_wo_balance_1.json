@@ -1,5 +1,5 @@
 {
-    "model_name": "foryer_model_wo_throttle_1",
+    "model_name": "foryer_model_wo_balance_1",
     "data_name": "INI_foyer_cw_ccw_training_60x180.hdf5",
     "test_data_name": "INI_foyer_cw_ccw_testing_60x180.hdf5",
     "stages": 3,
