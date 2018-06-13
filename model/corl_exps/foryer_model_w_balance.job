@@ -3,11 +3,11 @@
 #SBATCH --time=12:0:0
 #SBATCH --array=1-10
 #SBATCH --gres gpu:Tesla-K80:1 --mem=32000
-#SBATCH --output=foryer-model-wo-balance-%a.log
-#SBATCH --error=foryer-model-wo-balance-%a.log
+#SBATCH --output=foryer-model-w-balance-%a.log
+#SBATCH --error=foryer-model-w-balance-%a.log
 
 source $HOME/.bashrc
 
 cd $HOME/data/slasher/model/corl_exps
 
-make foryer-model-wo-balance-${SLURM_ARRAY_TASK_ID}
+make foryer-model-w-balance-${SLURM_ARRAY_TASK_ID}

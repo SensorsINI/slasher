@@ -1,0 +1,13 @@
+{
+    "model_name": "foryer_model_w_balance_10",
+    "data_name": "INI_foyer_cw_ccw_training_30x90.hdf5",
+    "test_data_name": "INI_foyer_cw_ccw_testing_30x90.hdf5",
+    "stages": 3,
+    "blocks": 3,
+    "filter_list": [[8, 8, 8],
+                    [16, 16, 16],
+                    [24, 24, 24]],
+    "nb_epoch": 200,
+    "batch_size": 128,
+    "target_size": [30, 90]
+}
