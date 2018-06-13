@@ -6,14 +6,12 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
-from builtins import range
 import os
 
 from sacred import Experiment
 
 import h5py
 import numpy as np
-from keras.utils.vis_utils import plot_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 
@@ -111,7 +109,7 @@ def resnet_exp(model_name, data_name, test_data_name, channel_id, stages,
         batch_size=batch_size,
         filter_list=filter_list, kernel_size=(3, 3),
         output_dim=1, stages=stages, blocks=blocks,
-        bottleneck=False, network_type="regress")
+        bottleneck=False, network_type="corl")
 
     model.summary()
 
