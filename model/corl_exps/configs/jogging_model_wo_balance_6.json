@@ -1,0 +1,13 @@
+{
+    "model_name": "jogging_model_wo_balance_6",
+    "data_name": "jogging-train.hdf5",
+    "test_data_name": "jogging-test.hdf5",
+    "stages": 3,
+    "blocks": 3,
+    "filter_list": [[8, 8, 8],
+                    [16, 16, 16],
+                    [24, 24, 24]],
+    "nb_epoch": 200,
+    "batch_size": 128,
+    "target_size": [30, 90]
+}

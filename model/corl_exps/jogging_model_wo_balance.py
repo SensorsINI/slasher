@@ -14,6 +14,7 @@ import h5py
 import numpy as np
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from keras.preprocessing.image import ImageDataGenerator
 
 import spiker
 from spiker import log
@@ -30,6 +31,27 @@ def get_dataset(dataset, verbose=True):
     throttle = pwm[:, 1]
     # change the throttle value from 1000-2000 to 0-1
     throttle = (throttle-1000)/1000
+
+    # filtering out outliers from throttle
+    throttle_up = np.percentile(throttle, 75)
+    throttle_down = np.percentile(throttle, 25)
+    IQR = throttle_up-throttle_down
+    throttle_up += 1.5*IQR
+    throttle_down -= 1.5*IQR
+
+    # filter throttle
+    th_up_index = (throttle < throttle_up)
+    throttle = throttle[th_up_index]
+    th_down_index = (throttle > throttle_down)
+    throttle = throttle[th_down_index]
+
+    # filter steering
+    steering = steering[th_up_index]
+    steering = steering[th_down_index]
+
+    # filter frames
+    frames = frames[th_up_index]
+    frames = frames[th_down_index]
 
     return frames, steering, throttle
 
@@ -116,7 +138,7 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
 
     model.compile(loss=['mean_squared_error', 'mean_squared_error'],
                   optimizer="adam",
-                  metrics=["mse", "mse"])
+                  metrics=["mse"])
     logger.info("Model is compiled.")
 
     model_file = model_file_base + "-best.hdf5"
