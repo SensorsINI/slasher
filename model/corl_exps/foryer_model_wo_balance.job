@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH --ntasks=1
+#SBATCH --time=12:0:0
+#SBATCH --array=1-10
+#SBATCH --gres gpu:Tesla-K80:1 --mem=32000
+#SBATCH --output=jogging-model-wo-balance-%a.log
+#SBATCH --error=jogging-model-wo-balance-%a.log
+
+source $HOME/.bashrc
+
+cd $HOME/data/slasher/model/corl_exps
+
+make foryer-model-wo-balance-${SLURM_ARRAY_TASK_ID}

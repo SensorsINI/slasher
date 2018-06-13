@@ -14,7 +14,6 @@ import h5py
 import numpy as np
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
-from keras.preprocessing.image import ImageDataGenerator
 
 import spiker
 from spiker import log
