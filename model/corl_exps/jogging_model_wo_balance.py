@@ -121,7 +121,7 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
 
     model_file = model_file_base + "-best.hdf5"
     checkpoint = ModelCheckpoint(model_file,
-                                 monitor='val_mean_squared_error',
+                                 monitor='val_loss',
                                  verbose=1,
                                  save_best_only=True,
                                  mode='min')
