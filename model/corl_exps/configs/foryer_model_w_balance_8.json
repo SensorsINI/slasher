@@ -1,7 +1,7 @@
 {
     "model_name": "foryer_model_w_balance_8",
-    "data_name": "INI_foyer_cw_ccw_training_30x90.hdf5",
-    "test_data_name": "INI_foyer_cw_ccw_testing_30x90.hdf5",
+    "data_name": "foyer-train.hdf5",
+    "test_data_name": "foyer-test.hdf5",
     "stages": 3,
     "blocks": 3,
     "filter_list": [[8, 8, 8],
