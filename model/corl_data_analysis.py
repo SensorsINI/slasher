@@ -74,14 +74,13 @@ if option == "get-rmse":
 
     # collect curves
     foryer_wo = collect_curves("foryer", "wo_balance", 10)
-    #  foryer_w = collect_curves("foryer", "w_balance", 10)
+    foryer_w = collect_curves("foryer", "w_balance", 10)
     #  jogging_wo = collect_curves("jogging", "wo_balance", 10)
     #  jogging_w = collect_curves("jogging", "w_balance", 10)
 
     # Get best testing steering and throttle
     foryer_wo_steer = get_best_test_steering_throttle(foryer_wo)
-    #  foryer_w_steer, foryer_w_throttle = get_best_test_steering_throttle(
-    #          foryer_w)
+    foryer_w_steer = get_best_test_steering_throttle(foryer_w)
     #  jogging_wo_steer, jogging_wo_throttle = get_best_test_steering_throttle(
     #          jogging_wo)
     #  jogging_w_steer, jogging_w_throttle = get_best_test_steering_throttle(
@@ -92,9 +91,9 @@ if option == "get-rmse":
     print ("Foryer wo mean: %f, std: %f" % (
         np.sqrt(np.mean(foryer_wo_steer))*25,
         np.sqrt(np.std(foryer_wo_steer))*25))
-    #  print ("Foryer w mean: %f, std: %f" % (
-    #      np.sqrt(np.mean(foryer_w_steer))*25,
-    #      np.sqrt(np.std(foryer_w_steer))*25))
+    print ("Foryer w mean: %f, std: %f" % (
+        np.sqrt(np.mean(foryer_w_steer))*25,
+        np.sqrt(np.std(foryer_w_steer))*25))
 
     #  print ("jogging wo mean: %f, std: %f" % (
     #      np.sqrt(np.mean(jogging_wo_steer))*25,
@@ -102,7 +101,6 @@ if option == "get-rmse":
     #  print ("jogging w mean: %f, std: %f" % (
     #      np.sqrt(np.mean(jogging_w_steer))*25,
     #      np.sqrt(np.std(jogging_w_steer))*25))
-
 
     #  print ("For throttle")
     #  print ("Foryer wo mean: %f, std: %f" % (

@@ -105,8 +105,8 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
     train_frames, train_steering = get_dataset(dataset)
     test_frames, test_steering = get_dataset(test_dataset)
 
-    train_frames -= np.mean(train_frames, keepdims=True)
-    test_frames -= np.mean(test_frames, keepdims=True)
+    #  train_frames -= np.mean(train_frames, keepdims=True)
+    #  test_frames -= np.mean(test_frames, keepdims=True)
 
     # rescale steering
     dataset.close()

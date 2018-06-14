@@ -55,7 +55,7 @@ test_data = h5py.File(test_path, "r")
 train_pwm = train_data["pwm"][()]
 test_pwm = test_data["pwm"][()]
 pwm = np.append(train_pwm, test_pwm, axis=0)
-#  pwm = test_pwm
+#  pwm = train_pwm
 
 train_data.close()
 test_data.close()
