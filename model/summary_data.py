@@ -43,41 +43,42 @@ def data_balance_gen(Y_train, batch_size=128):
 #      spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
 train_path = os.path.join(
     spiker.HOME, "data", "exps", "data",
-    "INI_foyer_cw_ccw_training_30x90.hdf5")
-#  test_path = os.path.join(
-#      spiker.HOME, "data", "exps", "data",
-#      "INI_foyer_cw_ccw_testing_30x90.hdf5")
+    "foyer-train.hdf5")
+test_path = os.path.join(
+    spiker.HOME, "data", "exps", "data",
+    "foyer-test.hdf5")
 
 
 train_data = h5py.File(train_path, "r")
-#  test_data = h5py.File(test_path, "r")
+test_data = h5py.File(test_path, "r")
 
-pwm = train_data["pwm"][()]
-#  test_pwm = test_data["pwm"][()]
+train_pwm = train_data["pwm"][()]
+test_pwm = test_data["pwm"][()]
 #  pwm = np.append(train_pwm, test_pwm, axis=0)
+pwm = test_pwm
 
 train_data.close()
-#  test_data.close()
+test_data.close()
 
 # throttle
-throttle = (pwm[:, 1]-1000)/1000
-throttle_up = np.percentile(throttle, 75)
-throttle_down = np.percentile(throttle, 25)
-IQR = throttle_up-throttle_down
-throttle_up += 1.5*IQR
-throttle_down -= 1.5*IQR
+#  throttle = (pwm[:, 1]-1000)/1000
+#  throttle_up = np.percentile(throttle, 75)
+#  throttle_down = np.percentile(throttle, 25)
+#  IQR = throttle_up-throttle_down
+#  throttle_up += 1.5*IQR
+#  throttle_down -= 1.5*IQR
 
-print (throttle_down)
-th_up_index = (throttle < throttle_up)
-throttle = throttle[th_up_index]
-th_down_index = (throttle > throttle_down)
-throttle = throttle[th_down_index]
-print (throttle.shape)
+#  print (throttle_down)
+#  th_up_index = (throttle < throttle_up)
+#  throttle = throttle[th_up_index]
+#  th_down_index = (throttle > throttle_down)
+#  throttle = throttle[th_down_index]
+#  print (throttle.shape)
 
 # Steering
 steering = pwm[:, 0]
-steering = steering[th_up_index]
-steering = steering[th_down_index]
+#  steering = steering[th_up_index]
+#  steering = steering[th_down_index]
 
 #  plt.figure()
 #  plt.hist(steering*25, bins=51, facecolor='g', alpha=0.75,
@@ -116,8 +117,7 @@ plt.show()
 #  plt.show()
 
 plt.figure()
-plt.plot(np.array(range(throttle.shape[0]))/5., throttle)
-plt.plot(np.array(range(steering.shape[0]))/5., steering, alpha=0.5, color="r")
+plt.plot(np.array(range(steering.shape[0])), steering, alpha=0.5, color="r")
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 plt.grid()

@@ -19,7 +19,7 @@ logger = log.get_logger("ResNet - Steering - Inference", log.INFO)
 
 def collect_models(task, balance, num_trails):
     base_path = os.path.join(
-        spiker.HOME, "data", "exps", "models")
+        spiker.HOME, "data", "exps", "models_single")
 
     # curves collector
     models_path_collector = []
@@ -34,14 +34,17 @@ def collect_models(task, balance, num_trails):
     return models_path_collector
 
 
-model_paths = collect_models("jogging", "wo_balance", 10)
+model_paths = collect_models("foryer", "wo_balance", 1)
 
 # load data
 #  data_path = os.path.join(
 #      spiker.HOME, "data", "exps", "data",
 #      "INI_foyer_cw_ccw_testing_30x90.hdf5")
 data_path = os.path.join(
-    spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
+    spiker.HOME, "data", "exps", "data",
+    "foyer-test.hdf5")
+#  data_path = os.path.join(
+#      spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
 
 logger.info("Dataset %s" % (data_path))
 test_dataset = h5py.File(data_path, "r")
@@ -61,7 +64,7 @@ logger.info("Number of samples %d" % (num_samples))
 logger.info("Number of test samples %d" % (X_test.shape[0]))
 
 prediction_collector = []
-for model_idx in xrange(10):
+for model_idx in xrange(1):
     # load model
     model = utils.keras_load_model(model_paths[model_idx])
 
@@ -72,9 +75,10 @@ for model_idx in xrange(10):
     del model
 
 predictions = np.array(prediction_collector)
+print (predictions.shape)
 Y_mean = np.mean(predictions, axis=0)[:, 0]
 Y_std = np.mean(predictions, axis=0)[:, 0]
-num_steps = np.array(range(X_test.shape[0]))/5.
+num_steps = np.array(range(X_test.shape[0]))/30.
 
 # plot the model
 plt.figure()
@@ -83,11 +87,11 @@ plt.plot(num_steps, Y_test, lw=1,
          color="#5C88DAFF", ls="-", mew=5,
          alpha=0.75)
 
-plt.plot(num_steps, Y_mean, lw=2,
+plt.plot(num_steps, prediction_collector[0], lw=2,
          label="predicted",
          color="#CC0C00FF", ls="-", mew=5)
-plt.fill_between(num_steps, Y_mean+Y_std, Y_mean-Y_std,
-                 facecolor="#CC0C0099")
+#  plt.fill_between(num_steps, Y_mean+Y_std, Y_mean-Y_std,
+#                   facecolor="#CC0C0099")
 
 plt.xlabel("time (s)", fontsize=16)
 plt.ylabel("steering angle (degree) ", fontsize=16)
