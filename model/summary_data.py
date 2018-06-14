@@ -37,27 +37,27 @@ def data_balance_gen(Y_train, batch_size=128):
 
 
 # import train data
-train_path = os.path.join(
-    spiker.HOME, "data", "exps", "data", "jogging-train.hdf5")
-test_path = os.path.join(
-    spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
 #  train_path = os.path.join(
-#      spiker.HOME, "data", "exps", "data",
-#      "INI_foyer_cw_ccw_training_30x90.hdf5")
+#      spiker.HOME, "data", "exps", "data", "jogging-train.hdf5")
+#  test_path = os.path.join(
+#      spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
+train_path = os.path.join(
+    spiker.HOME, "data", "exps", "data",
+    "INI_foyer_cw_ccw_training_30x90.hdf5")
 #  test_path = os.path.join(
 #      spiker.HOME, "data", "exps", "data",
 #      "INI_foyer_cw_ccw_testing_30x90.hdf5")
 
 
 train_data = h5py.File(train_path, "r")
-test_data = h5py.File(test_path, "r")
+#  test_data = h5py.File(test_path, "r")
 
-train_pwm = train_data["pwm"][()]
-test_pwm = test_data["pwm"][()]
-pwm = np.append(train_pwm, test_pwm, axis=0)
+pwm = train_data["pwm"][()]
+#  test_pwm = test_data["pwm"][()]
+#  pwm = np.append(train_pwm, test_pwm, axis=0)
 
 train_data.close()
-test_data.close()
+#  test_data.close()
 
 # throttle
 throttle = (pwm[:, 1]-1000)/1000
@@ -92,25 +92,33 @@ steering = steering[th_down_index]
 plt.show()
 
 # balance data
-steering_balanced = np.array([])
-steer = data_balance_gen(steering, batch_size=128)
-for batch in xrange(steering.shape[0]//128+1):
-    steering_balanced = np.append(
-        steering_balanced, steer.next())
-    print ("batch %d/%d" % (batch+1, steering.shape[0]//128))
+#  steering_balanced = np.array([])
+#  steer = data_balance_gen(steering, batch_size=128)
+#  for batch in xrange(steering.shape[0]//128+1):
+#      steering_balanced = np.append(
+#          steering_balanced, steer.next())
+#      print ("batch %d/%d" % (batch+1, steering.shape[0]//128))
 
+
+#  plt.figure()
+#  plt.hist([steering*25, steering_balanced*25], bins=26,
+#           alpha=0.8,
+#           edgecolor='black', linewidth=1.2,
+#           label=["original", "balanced"])
+#  #  plt.hist(steering_balanced*25, bins=51, facecolor='g', alpha=0.5,
+#  #           edgecolor='black', linewidth=1.2)
+#  plt.xlabel("steering angle (degree)", fontsize=16)
+#  plt.ylabel("number of instance", fontsize=16)
+#  plt.xticks(fontsize=16)
+#  plt.yticks(fontsize=16)
+#  plt.grid()
+#  plt.legend(fontsize=16)
+#  plt.show()
 
 plt.figure()
-plt.hist([steering*25, steering_balanced*25], bins=26,
-         alpha=0.8,
-         edgecolor='black', linewidth=1.2,
-         label=["original", "balanced"])
-#  plt.hist(steering_balanced*25, bins=51, facecolor='g', alpha=0.5,
-#           edgecolor='black', linewidth=1.2)
-plt.xlabel("steering angle (degree)", fontsize=16)
-plt.ylabel("number of instance", fontsize=16)
+plt.plot(np.array(range(throttle.shape[0]))/5., throttle)
+plt.plot(np.array(range(steering.shape[0]))/5., steering, alpha=0.5, color="r")
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 plt.grid()
-plt.legend(fontsize=16)
 plt.show()
