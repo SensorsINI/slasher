@@ -15,7 +15,7 @@ import spiker
 
 def collect_curves(task, balance, num_trails):
     base_path = os.path.join(
-        spiker.HOME, "data", "exps", "models")
+        spiker.HOME, "data", "exps", "models_single")
 
     # curves collector
     curves_collector = []
@@ -54,39 +54,38 @@ def get_best_test_steering_throttle(curves):
     num_trails = len(curves)
 
     min_steering_losses = []
-    min_throttle_losses = []
+    #  min_throttle_losses = []
     for curve_idx in range(num_trails):
         # get the one with minimum testing loss
-        min_loss_idx = np.argmin(curves[curve_idx][:, 6])
-        min_steering_loss = curves[curve_idx][min_loss_idx, 8]
-        min_throttle_loss = curves[curve_idx][min_loss_idx, 10]
+        min_loss = np.min(curves[curve_idx][:, 4])
+        #  min_steering_loss = curves[curve_idx][min_loss_idx, 8]
+        #  min_throttle_loss = curves[curve_idx][min_loss_idx, 10]
 
-        min_steering_losses.append(min_steering_loss)
-        min_throttle_losses.append(min_throttle_loss)
+        min_steering_losses.append(min_loss)
+        #  min_throttle_losses.append(min_throttle_loss)
 
-    return min_steering_losses, min_throttle_losses
+    return min_steering_losses
 
 
 option = "get-rmse"
-option = "get-loss-curve"
+#  option = "get-loss-curve"
 
 if option == "get-rmse":
 
     # collect curves
     foryer_wo = collect_curves("foryer", "wo_balance", 10)
     #  foryer_w = collect_curves("foryer", "w_balance", 10)
-    jogging_wo = collect_curves("jogging", "wo_balance", 10)
-    jogging_w = collect_curves("jogging", "w_balance", 10)
+    #  jogging_wo = collect_curves("jogging", "wo_balance", 10)
+    #  jogging_w = collect_curves("jogging", "w_balance", 10)
 
     # Get best testing steering and throttle
-    foryer_wo_steer, foryer_wo_throttle = get_best_test_steering_throttle(
-            foryer_wo)
+    foryer_wo_steer = get_best_test_steering_throttle(foryer_wo)
     #  foryer_w_steer, foryer_w_throttle = get_best_test_steering_throttle(
     #          foryer_w)
-    jogging_wo_steer, jogging_wo_throttle = get_best_test_steering_throttle(
-            jogging_wo)
-    jogging_w_steer, jogging_w_throttle = get_best_test_steering_throttle(
-            jogging_w)
+    #  jogging_wo_steer, jogging_wo_throttle = get_best_test_steering_throttle(
+    #          jogging_wo)
+    #  jogging_w_steer, jogging_w_throttle = get_best_test_steering_throttle(
+    #          jogging_w)
 
     # get mean and std for steering
     print ("For steering")
@@ -97,27 +96,27 @@ if option == "get-rmse":
     #      np.sqrt(np.mean(foryer_w_steer))*25,
     #      np.sqrt(np.std(foryer_w_steer))*25))
 
-    print ("jogging wo mean: %f, std: %f" % (
-        np.sqrt(np.mean(jogging_wo_steer))*25,
-        np.sqrt(np.std(jogging_wo_steer))*25))
-    print ("jogging w mean: %f, std: %f" % (
-        np.sqrt(np.mean(jogging_w_steer))*25,
-        np.sqrt(np.std(jogging_w_steer))*25))
+    #  print ("jogging wo mean: %f, std: %f" % (
+    #      np.sqrt(np.mean(jogging_wo_steer))*25,
+    #      np.sqrt(np.std(jogging_wo_steer))*25))
+    #  print ("jogging w mean: %f, std: %f" % (
+    #      np.sqrt(np.mean(jogging_w_steer))*25,
+    #      np.sqrt(np.std(jogging_w_steer))*25))
 
 
-    print ("For throttle")
-    print ("Foryer wo mean: %f, std: %f" % (
-        np.sqrt(np.mean(foryer_wo_throttle))*100,
-        np.sqrt(np.std(foryer_wo_throttle))*100))
-    #  print ("Foryer w mean: %f, std: %f" % (
-    #      np.sqrt(np.mean(foryer_w_throttle))*100,
-    #      np.sqrt(np.std(foryer_w_throttle))*100))
-    print ("jogging wo mean: %f, std: %f" % (
-        np.sqrt(np.mean(jogging_wo_throttle))*100,
-        np.sqrt(np.std(jogging_wo_throttle))*100))
-    print ("jogging w mean: %f, std: %f" % (
-        np.sqrt(np.mean(jogging_w_throttle))*100,
-        np.sqrt(np.std(jogging_w_throttle))*100))
+    #  print ("For throttle")
+    #  print ("Foryer wo mean: %f, std: %f" % (
+    #      np.sqrt(np.mean(foryer_wo_throttle))*100,
+    #      np.sqrt(np.std(foryer_wo_throttle))*100))
+    #  #  print ("Foryer w mean: %f, std: %f" % (
+    #  #      np.sqrt(np.mean(foryer_w_throttle))*100,
+    #  #      np.sqrt(np.std(foryer_w_throttle))*100))
+    #  print ("jogging wo mean: %f, std: %f" % (
+    #      np.sqrt(np.mean(jogging_wo_throttle))*100,
+    #      np.sqrt(np.std(jogging_wo_throttle))*100))
+    #  print ("jogging w mean: %f, std: %f" % (
+    #      np.sqrt(np.mean(jogging_w_throttle))*100,
+    #      np.sqrt(np.std(jogging_w_throttle))*100))
 
 elif option == "get-loss-curve":
     # collect curves

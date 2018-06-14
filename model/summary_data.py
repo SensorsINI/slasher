@@ -37,16 +37,16 @@ def data_balance_gen(Y_train, batch_size=128):
 
 
 # import train data
-#  train_path = os.path.join(
-#      spiker.HOME, "data", "exps", "data", "jogging-train.hdf5")
-#  test_path = os.path.join(
-#      spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
 train_path = os.path.join(
-    spiker.HOME, "data", "exps", "data",
-    "foyer-train.hdf5")
+    spiker.HOME, "data", "exps", "data", "jogging-train.hdf5")
 test_path = os.path.join(
-    spiker.HOME, "data", "exps", "data",
-    "foyer-test.hdf5")
+    spiker.HOME, "data", "exps", "data", "jogging-test.hdf5")
+#  train_path = os.path.join(
+#      spiker.HOME, "data", "exps", "data",
+#      "foyer-train.hdf5")
+#  test_path = os.path.join(
+#      spiker.HOME, "data", "exps", "data",
+#      "foyer-test.hdf5")
 
 
 train_data = h5py.File(train_path, "r")

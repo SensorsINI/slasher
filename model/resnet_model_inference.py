@@ -34,7 +34,7 @@ def collect_models(task, balance, num_trails):
     return models_path_collector
 
 
-model_paths = collect_models("foryer", "wo_balance", 1)
+model_paths = collect_models("foryer", "wo_balance", 10)
 
 # load data
 #  data_path = os.path.join(
@@ -64,7 +64,7 @@ logger.info("Number of samples %d" % (num_samples))
 logger.info("Number of test samples %d" % (X_test.shape[0]))
 
 prediction_collector = []
-for model_idx in xrange(1):
+for model_idx in xrange(10):
     # load model
     model = utils.keras_load_model(model_paths[model_idx])
 
