@@ -36,7 +36,7 @@ def collect_models(task, balance, num_trails):
     return models_path_collector
 
 
-model_paths = collect_models("jogging", "wo_balance", 1)
+model_paths = collect_models("jogging", "w_balance", 1)
 
 # load data
 #  data_path = os.path.join(

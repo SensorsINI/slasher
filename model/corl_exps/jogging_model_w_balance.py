@@ -121,7 +121,7 @@ exp.add_config({
 def resnet_exp(model_name, data_name, test_data_name, stages,
                blocks, filter_list, nb_epoch, batch_size, target_size):
     """Perform ResNet experiment."""
-    model_path = os.path.join(spiker.HOME, "data", "exps", "models",
+    model_path = os.path.join(spiker.HOME, "data", "exps", "models_single",
                               model_name)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
