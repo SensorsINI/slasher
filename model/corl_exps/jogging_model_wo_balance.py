@@ -14,6 +14,7 @@ import h5py
 import numpy as np
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from scipy.signal import medfilt
 
 import spiker
 from spiker import log
@@ -29,7 +30,7 @@ def get_dataset(dataset, verbose=True):
     steering = pwm[:, 0]
     throttle = pwm[:, 1]
     # change the throttle value from 1000-2000 to 0-1
-    throttle = (throttle-1000)/1000
+    #  throttle = (throttle-1000)/1000
 
     # filtering out outliers from throttle
     #  throttle_up = np.percentile(throttle, 75)
@@ -48,9 +49,19 @@ def get_dataset(dataset, verbose=True):
     #  steering = steering[th_up_index]
     #  steering = steering[th_down_index]
 
+    steering = medfilt(steering, kernel_size=5)
+    steering_up = np.percentile(steering, 75)
+    steering_down = np.percentile(steering, 25)
+    IQR = steering_up-steering_down
+    steering_up += 1.5*IQR
+    steering_down -= 1.5*IQR
+    ster_up_index = (steering < steering_up)
+    steering = steering[ster_up_index]
+    ster_down_index = (steering > steering_down)
+    steering = steering[ster_down_index]
     # filter frames
-    #  frames = frames[th_up_index]
-    #  frames = frames[th_down_index]
+    frames = frames[ster_up_index]
+    frames = frames[ster_down_index]
 
     return frames, steering
 

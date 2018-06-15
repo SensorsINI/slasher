@@ -1,5 +1,6 @@
 """Experimental ResNet Keras Model for Steering.
 
+
 Jogging dataset, with balancing
 
 Author: Yuhuang Hu
@@ -15,6 +16,7 @@ import numpy as np
 import random
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from scipy.signal import medfilt
 
 import spiker
 from spiker import log
@@ -27,7 +29,7 @@ def data_balance_gen(X_train, Y_train, batch_size=128):
     while True:
         images = np.zeros((batch_size, 30, 90, 2), dtype=np.float32)
         steerings = np.zeros((batch_size,), dtype=np.float32)
-        throttles = np.zeros((batch_size,), dtype=np.float32)
+        #  throttles = np.zeros((batch_size,), dtype=np.float32)
         for i in range(batch_size):
             straight_count = 0
             for i in range(batch_size):
@@ -35,21 +37,21 @@ def data_balance_gen(X_train, Y_train, batch_size=128):
                 sample_index = random.randrange(X_train.shape[0])
 
                 image = X_train[sample_index]
-                angle = Y_train[0][sample_index]
-                throttle = Y_train[1][sample_index]
+                angle = Y_train[sample_index]
+                #  throttle = Y_train[1][sample_index]
                 if abs(angle) < .1:
                     straight_count += 1
-                if straight_count > (batch_size * .2):
-                    while abs(Y_train[0][sample_index]) < .1:
+                if straight_count > (batch_size * .5):
+                    while abs(Y_train[sample_index]) < .1:
                         sample_index = random.randrange(X_train.shape[0])
                         image = X_train[sample_index]
-                        angle = Y_train[0][sample_index]
-                        throttle = Y_train[1][sample_index]
+                        angle = Y_train[sample_index]
+                        #  throttle = Y_train[1][sample_index]
                 images[i] = image
                 steerings[i] = angle
-                throttles[i] = throttle
+                #  throttles[i] = throttle
 
-        yield images, [steerings, throttles]
+        yield images, steerings
 
 
 def get_dataset(dataset, verbose=True):
@@ -59,32 +61,45 @@ def get_dataset(dataset, verbose=True):
     steering = pwm[:, 0]
     throttle = pwm[:, 1]
     # change the throttle value from 1000-2000 to 0-1
-    throttle = (throttle-1000)/1000
+    #  throttle = (throttle-1000)/1000
 
     # filtering out outliers from throttle
-    throttle_up = np.percentile(throttle, 75)
-    throttle_down = np.percentile(throttle, 25)
-    IQR = throttle_up-throttle_down
-    throttle_up += 1.5*IQR
-    throttle_down -= 1.5*IQR
+    #  throttle_up = np.percentile(throttle, 75)
+    #  throttle_down = np.percentile(throttle, 25)
+    #  IQR = throttle_up-throttle_down
+    #  throttle_up += 1.5*IQR
+    #  throttle_down -= 1.5*IQR
 
     # filter throttle
-    th_up_index = (throttle < throttle_up)
-    throttle = throttle[th_up_index]
-    th_down_index = (throttle > throttle_down)
-    throttle = throttle[th_down_index]
+    #  th_up_index = (throttle < throttle_up)
+    #  throttle = throttle[th_up_index]
+    #  th_down_index = (throttle > throttle_down)
+    #  throttle = throttle[th_down_index]
 
     # filter steering
-    steering = steering[th_up_index]
-    steering = steering[th_down_index]
+    #  steering = steering[th_up_index]
+    #  steering = steering[th_down_index]
 
     # filter frames
-    frames = frames[th_up_index]
-    frames = frames[th_down_index]
+    #  frames = frames[th_up_index]
+    #  frames = frames[th_down_index]
 
     # balancing
+    steering = medfilt(steering, kernel_size=5)
+    steering_up = np.percentile(steering, 75)
+    steering_down = np.percentile(steering, 25)
+    IQR = steering_up-steering_down
+    steering_up += 1.5*IQR
+    steering_down -= 1.5*IQR
+    ster_up_index = (steering < steering_up)
+    steering = steering[ster_up_index]
+    ster_down_index = (steering > steering_down)
+    steering = steering[ster_down_index]
+    # filter frames
+    frames = frames[ster_up_index]
+    frames = frames[ster_down_index]
 
-    return frames, steering, throttle
+    return frames, steering
 
 
 exp = Experiment("ResNet - Steering - Experiment")
@@ -134,11 +149,11 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
     dataset = h5py.File(data_path, "r")
     test_dataset = h5py.File(test_data_path, "r")
 
-    train_frames, train_steering, train_throttle = get_dataset(dataset)
-    test_frames, test_steering, test_throttle = get_dataset(test_dataset)
+    train_frames, train_steering = get_dataset(dataset)
+    test_frames, test_steering = get_dataset(test_dataset)
 
-    train_frames -= np.mean(train_frames, keepdims=True)
-    test_frames -= np.mean(test_frames, keepdims=True)
+    #  train_frames -= np.mean(train_frames, keepdims=True)
+    #  test_frames -= np.mean(test_frames, keepdims=True)
 
     # rescale steering
     dataset.close()
@@ -146,9 +161,9 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
 
     num_samples = train_frames.shape[0]+test_frames.shape[0]
     X_train = train_frames
-    Y_train = [train_steering, train_steering]
+    Y_train = train_steering
     X_test = test_frames
-    Y_test = [test_steering, test_steering]
+    Y_test = test_steering
 
     logger.info("Number of samples %d" % (num_samples))
     logger.info("Number of train samples %d" % (X_train.shape[0]))
@@ -158,23 +173,29 @@ def resnet_exp(model_name, data_name, test_data_name, stages,
     input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
 
     # Build model
+    #  model = resnet.resnet_builder(
+    #      model_name=model_name, input_shape=input_shape,
+    #      batch_size=batch_size,
+    #      filter_list=filter_list, kernel_size=(3, 3),
+    #      output_dim=1, stages=stages, blocks=blocks,
+    #      bottleneck=False, network_type="corl")
     model = resnet.resnet_builder(
         model_name=model_name, input_shape=input_shape,
         batch_size=batch_size,
         filter_list=filter_list, kernel_size=(3, 3),
         output_dim=1, stages=stages, blocks=blocks,
-        bottleneck=False, network_type="corl")
+        bottleneck=False, network_type="regress")
 
     model.summary()
 
-    model.compile(loss=['mean_squared_error', 'mean_squared_error'],
+    model.compile(loss=['mean_squared_error'],
                   optimizer="adam",
                   metrics=["mse"])
     logger.info("Model is compiled.")
 
     model_file = model_file_base + "-best.hdf5"
     checkpoint = ModelCheckpoint(model_file,
-                                 monitor='val_loss',
+                                 monitor='val_mean_squared_error',
                                  verbose=1,
                                  save_best_only=True,
                                  mode='min')

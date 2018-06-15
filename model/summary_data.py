@@ -9,6 +9,7 @@ import os
 import numpy as np
 import random
 import h5py
+from scipy.signal import medfilt, wiener
 
 import matplotlib.pyplot as plt
 
@@ -27,7 +28,7 @@ def data_balance_gen(Y_train, batch_size=128):
                 angle = Y_train[sample_index]
                 if abs(angle) < .1:
                     straight_count += 1
-                if straight_count > (batch_size * .2):
+                if straight_count > (batch_size * .5):
                     while abs(Y_train[sample_index]) < .1:
                         sample_index = random.randrange(len(Y_train))
                         angle = Y_train[sample_index]
@@ -55,7 +56,7 @@ test_data = h5py.File(test_path, "r")
 train_pwm = train_data["pwm"][()]
 test_pwm = test_data["pwm"][()]
 pwm = np.append(train_pwm, test_pwm, axis=0)
-#  pwm = train_pwm
+#  pwm = test_pwm
 
 train_data.close()
 test_data.close()
@@ -77,6 +78,19 @@ test_data.close()
 
 # Steering
 steering = pwm[:, 0]
+print (steering.shape)
+steering = medfilt(steering, kernel_size=5)
+steering_up = np.percentile(steering, 75)
+steering_down = np.percentile(steering, 25)
+IQR = steering_up-steering_down
+steering_up += 1.5*IQR
+steering_down -= 1.5*IQR
+ster_up_index = (steering < steering_up)
+steering = steering[ster_up_index]
+ster_down_index = (steering > steering_down)
+steering = steering[ster_down_index]
+
+print (steering.shape)
 #  steering = steering[th_up_index]
 #  steering = steering[th_down_index]
 
@@ -115,10 +129,10 @@ plt.yticks(fontsize=16)
 plt.grid()
 plt.legend(fontsize=16)
 plt.show()
-#
-#  plt.figure()
-#  plt.plot(np.array(range(steering.shape[0])), steering, alpha=0.5, color="r")
-#  plt.xticks(fontsize=16)
-#  plt.yticks(fontsize=16)
-#  plt.grid()
-#  plt.show()
+
+plt.figure()
+plt.plot(np.array(range(steering.shape[0])), steering, alpha=0.5, color="r")
+plt.xticks(fontsize=16)
+plt.yticks(fontsize=16)
+plt.grid()
+plt.show()

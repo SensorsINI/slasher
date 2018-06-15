@@ -10,6 +10,7 @@ import cPickle as pickle
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import medfilt
 
 import spiker
 from spiker import log
@@ -50,9 +51,26 @@ data_path = os.path.join(
 logger.info("Dataset %s" % (data_path))
 test_dataset = h5py.File(data_path, "r")
 
-test_frames = test_dataset["dvs_bind"][()]
-test_frames -= np.mean(test_frames, keepdims=True)
-test_steering = test_dataset["pwm"][:, 0][()]
+frames = test_dataset["dvs_bind"][()]
+#  test_frames -= np.mean(test_frames, keepdims=True)
+steering = test_dataset["pwm"][:, 0][()]
+steering = medfilt(steering, kernel_size=5)
+
+# for jogging
+steering_up = np.percentile(steering, 75)
+steering_down = np.percentile(steering, 25)
+IQR = steering_up-steering_down
+steering_up += 1.5*IQR
+steering_down -= 1.5*IQR
+ster_up_index = (steering < steering_up)
+steering = steering[ster_up_index]
+ster_down_index = (steering > steering_down)
+steering = steering[ster_down_index]
+# filter frames
+frames = frames[ster_up_index]
+frames = frames[ster_down_index]
+test_frames = frames
+test_steering = steering
 
 # rescale steering
 test_dataset.close()
