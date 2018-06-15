@@ -36,7 +36,7 @@ def collect_models(task, balance, num_trails):
     return models_path_collector
 
 
-model_paths = collect_models("jogging", "w_balance", 1)
+model_paths = collect_models("jogging", "w_balance", 10)
 
 # load data
 #  data_path = os.path.join(
@@ -54,9 +54,9 @@ test_dataset = h5py.File(data_path, "r")
 frames = test_dataset["dvs_bind"][()]
 #  test_frames -= np.mean(test_frames, keepdims=True)
 steering = test_dataset["pwm"][:, 0][()]
-steering = medfilt(steering, kernel_size=5)
 
 # for jogging
+steering = medfilt(steering, kernel_size=5)
 steering_up = np.percentile(steering, 75)
 steering_down = np.percentile(steering, 25)
 IQR = steering_up-steering_down
@@ -69,6 +69,7 @@ steering = steering[ster_down_index]
 # filter frames
 frames = frames[ster_up_index]
 frames = frames[ster_down_index]
+
 test_frames = frames
 test_steering = steering
 
@@ -84,7 +85,7 @@ logger.info("Number of samples %d" % (num_samples))
 logger.info("Number of test samples %d" % (X_test.shape[0]))
 
 prediction_collector = []
-for model_idx in xrange(1):
+for model_idx in xrange(10):
     # load model
     model = utils.keras_load_model(model_paths[model_idx])
 
@@ -100,31 +101,31 @@ Y_mean = np.mean(predictions, axis=0)[:, 0]
 Y_std = np.std(predictions, axis=0)[:, 0]
 num_steps = np.array(range(X_test.shape[0]))/30.
 
-#  base_path = os.path.join(
-#      spiker.HOME, "data", "exps", "models_single")
-#
-#  with open(os.path.join(base_path, "foyer-wo-balance.pkl"), "w") as f:
-#      pickle.dump([Y_test, predictions], f)
-#      f.close()
+base_path = os.path.join(
+    spiker.HOME, "data", "exps", "models_single")
+
+with open(os.path.join(base_path, "jogging-w-balance.pkl"), "w") as f:
+    pickle.dump([Y_test, predictions], f)
+    f.close()
 
 # plot the model
-plt.figure()
-plt.plot(num_steps, Y_test, lw=3,
-         label="groundtruth",
-         color="#5C88DAFF", ls="-", mew=5,
-         alpha=0.75)
-
-plt.plot(num_steps, Y_mean, lw=2,
-         label="predicted",
-         color="#CC0C00FF", ls="-", mew=5)
-plt.fill_between(num_steps, Y_mean+Y_std, Y_mean-Y_std,
-                 facecolor="#CC0C0099")
-
-plt.xlabel("time (s)", fontsize=16)
-plt.ylabel("steering angle (degree) ", fontsize=16)
-plt.xticks(fontsize=16)
-plt.yticks(fontsize=16)
-plt.legend(fontsize=16)
-plt.grid()
-plt.legend()
-plt.show()
+#  plt.figure()
+#  plt.plot(num_steps, Y_test, lw=3,
+#           label="groundtruth",
+#           color="#5C88DAFF", ls="-", mew=5,
+#           alpha=0.75)
+#
+#  plt.plot(num_steps, Y_mean, lw=2,
+#           label="predicted",
+#           color="#CC0C00FF", ls="-", mew=5)
+#  plt.fill_between(num_steps, Y_mean+Y_std, Y_mean-Y_std,
+#                   facecolor="#CC0C0099")
+#
+#  plt.xlabel("time (s)", fontsize=16)
+#  plt.ylabel("steering angle (degree) ", fontsize=16)
+#  plt.xticks(fontsize=16)
+#  plt.yticks(fontsize=16)
+#  plt.legend(fontsize=16)
+#  plt.grid()
+#  plt.legend()
+#  plt.show()
