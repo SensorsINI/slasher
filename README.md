@@ -1,4 +1,4 @@
-# monstruck
+# Slasher
 A aggressive self-driving stadium truck.
 
 ## Install ROS
