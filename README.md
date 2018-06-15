@@ -256,7 +256,3 @@ $ python monstruck_drive_model.py with configs/monstruck_drive_model_exp.json
 
 [The evaluation script](./model/resnet_model_inference.py) loads a trained model
 and then evaluates on a test dataset. It also re-saves the trained model to model definition JSON file and weights file in HDF5. These two files are used by monstruck to perform inference. Please check out the script and modify to your needs.
-
-## Contacts
-
-Hong Ming Chen, Yuhuang Hu
