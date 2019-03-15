@@ -1,6 +1,8 @@
 # Slasher
 A aggressive self-driving stadium truck.
 
+Official Website: https://sites.google.com/view/slasher-robot-car/home
+
 ## Install ROS
 
 1. Install ROS for host machine
